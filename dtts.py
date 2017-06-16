@@ -68,6 +68,40 @@ class Wall(Entity):
 	def draw(self):
 		pygame.draw.rect(gameDisplay, gray, [self.x, self.y, self.wid, self.hi])
 
+class Door(Entity):
+	def __init__(self, x, y, wid, hi, color):
+		Entity.__init__(self)
+		self.x = x
+		self.y = y
+		self.wid = wid
+		self.hi = hi
+		self.hitbox = pygame.Rect(x, y, wid, hi)
+		self.color = color
+		self.opened = False
+		
+	def draw(self):
+		if not self.opened:
+			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi])
+		else:
+			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi], 1)
+	
+class Switch(Entity):
+	def __init__(self, x, y, wid, hi, color):
+		Entity.__init__(self)
+		self.x = x
+		self.y = y
+		self.wid = wid
+		self.hi = hi
+		self.hitbox = pygame.Rect(x, y, wid, hi)
+		self.color = color
+		self.flipped = False
+
+	def draw(self):
+		if not self.flipped:
+			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi])
+		else:
+			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi], 1)
+		
 class Scene(object):
 	def __init__(self):
 		pass
