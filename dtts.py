@@ -10,10 +10,7 @@ red = (255,0,0)
 cyan = (0,255,255)
 res_x = 800
 res_y = 600
-#ship_size = 16
 fps = 60
-#mass = 3
-#trail_len = 20
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 pygame.display.set_caption('don\'t touch the sides')
@@ -200,8 +197,6 @@ def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	
 def gameLoop():
 	gameExit = False
-	# entities = pygame.sprite.Group()
-	# ship = Ship(res_x/2, res_y/2)
 	
 	scene = GameScene()
 	
@@ -213,12 +208,6 @@ def gameLoop():
 		scene.handle_events(pygame.event.get())
 		scene.update()
 		scene.render()
-		# pressed = pygame.key.get_pressed()
-		# lkey, rkey, ukey, dkey = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN)]
-		
-		# gameDisplay.fill(black)
-		# ship.update(lkey, rkey, ukey, dkey)
-		# ship.draw()
 		pygame.display.update()
 		clock.tick(fps)
 		
