@@ -115,6 +115,14 @@ class Scene(object):
 	def handle_events(self, events):
 		raise NotImplementedError
 		
+class Level(object):
+	def __init__(self, levelimg):
+		self.walls = []
+		self.doors = []
+		self.switches = []
+		self.entities = pygame.sprite.Group()
+		self.tiles = loadLevel(levelimg)
+		
 class GameScene(Scene):
 	def __init__(self):
 		super(GameScene, self).__init__()
@@ -201,6 +209,9 @@ class GameScene(Scene):
 		for e in events:
 			if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
 				pass
+				
+def loadLevel(levelimg):
+	pass
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	if accel_x > 0:
