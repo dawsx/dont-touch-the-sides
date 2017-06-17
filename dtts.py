@@ -126,8 +126,11 @@ class Scene(object):
 class Level(object):
 	def __init__(self, levelimg):
 		self.walls = []
-		self.doors = []
-		self.switches = []
+		self.bluedoors = []
+		self.blueswitches = []
+		self.reddoors = []
+		self.redswitches = []
+		self.spawnpoint = []
 		self.entities = pygame.sprite.Group()
 		self.tiles = loadLevel(levelimg)
 		
