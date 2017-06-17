@@ -134,6 +134,15 @@ class Level(object):
 		self.entities = pygame.sprite.Group()
 		self.tiles = loadLevel(levelimg)
 		
+	def drawWalls(self):
+		pass
+	
+	def drawDoors(self):
+		pass
+	
+	def drawSwitches(self):
+		pass
+		
 class GameScene(Scene):
 	def __init__(self):
 		super(GameScene, self).__init__()
