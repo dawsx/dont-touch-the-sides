@@ -12,6 +12,14 @@ res_x = 800
 res_y = 600
 fps = 60
 
+spawntile = b'\xff'
+bgtile = b'\x00'
+walltile = b'\xa4'
+bluedoortile = b'\xe8'
+blueswitchtile = b'\x09'
+reddoortile = b'\x4f'
+redswitchtile = b'\xef'
+
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 pygame.display.set_caption('don\'t touch the sides')
 clock = pygame.time.Clock()
@@ -211,7 +219,50 @@ class GameScene(Scene):
 				pass
 				
 def loadLevel(levelimg):
-	pass
+	file = open(levelimg, 'rb')
+	fileoffset = 0x436
+	width = 100
+	height = 72
+	pixellist = []
+	file.seek(fileoffset)
+	temp = []
+	for x in range (0,height):
+		temp = file.read(width)
+		pixellist = [temp] + pixellist
+	
+	spawntile = b'\xff'
+	bgtile = b'\x00'
+	walltile = b'\xa4'
+	bluedoortile = b'\xe8'
+	blueswitchtile = b'\x09'
+	reddoortile = b'\x4f'
+	redswitchtile = b'\xef'
+	x = 0
+	y = 0
+	level = []
+	#pprint pixellist
+	for row in pixellist:
+		str = ""
+		splitrow = [row[i:i+1] for i in range(0, len(row))]
+		for col in splitrow:
+			if col == spawntile:
+				str += "S"
+			elif col == bgtile:
+				str += " "
+			elif col == walltile:
+				str += "W"
+			elif col == reddoortile:
+				str += "R"
+			elif col == redswitchtile:
+				str += "r"
+			elif col == bluedoortile:
+				str += "B"
+			elif col == blueswitchtile:
+				str += "b"
+		
+		level.append(str)
+		
+	return level
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	if accel_x > 0:
