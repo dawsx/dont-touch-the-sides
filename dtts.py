@@ -3,15 +3,23 @@ import math
 
 pygame.init()
 
-white = (255,255,255)
-black = (0,0,0)
-gray = (198, 198, 198)
-red = (255,0,0)
-cyan = (0,255,255)
+# colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+gray = (127, 127, 127)
+red = (255, 0, 0)
+yellow = (255, 255, 0)
+green = (0, 255, 0)
+cyan = (0, 255, 255)
+blue = (0, 0, 255)
+magenta = (255, 0, 255)
+
+# display data
 res_x = 800
 res_y = 600
 fps = 60
 
+# tile constants for loading a level from bmp
 spawntile = b'\xff'
 bgtile = b'\x00'
 walltile = b'\xa4'
@@ -19,6 +27,12 @@ bluedoortile = b'\xe8'
 blueswitchtile = b'\x09'
 reddoortile = b'\x4f'
 redswitchtile = b'\xef'
+yellowdoorclosedtile = b'\xfb'
+yellowdooropentile = b'\x08'
+greendoortile = b'\x71'
+greenswitchtile = b'\x3E'
+magentadoortile = b'\xd5'
+magentaswitchtile = b'\x07'
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 pygame.display.set_caption('don\'t touch the sides')
@@ -75,6 +89,15 @@ class Wall(Entity):
 	
 	def draw(self):
 		pygame.draw.rect(gameDisplay, gray, [self.x, self.y, self.wid, self.hi])
+
+		
+# doors work as follows:
+# - blue doors are tied to blue switches. flip all the blue switches to open all the blue doors
+# - red doors work the same as blue doors, except with red switches
+# - yellow doors alternate between open and closed on a timer. They can start open or closed, and alternate in turn
+# - green doors and magenta doors are paired. Hit a green switch to open all green doors and close all magenta doors. 
+#    hit a magenta switch to do the opposite. if you hit a green switch, it disables all green switches and enables 
+#    all magenta switches, and vice versa. magenta doors start open, and green doors start closed
 
 class Door(Entity):
 	def __init__(self, x, y, wid, hi, color):
@@ -242,6 +265,7 @@ def loadLevel(levelimg):
 		temp = file.read(width)
 		pixellist = [temp] + pixellist
 	
+	# tile constants for loading a level from bmp
 	spawntile = b'\xff'
 	bgtile = b'\x00'
 	walltile = b'\xa4'
@@ -249,18 +273,22 @@ def loadLevel(levelimg):
 	blueswitchtile = b'\x09'
 	reddoortile = b'\x4f'
 	redswitchtile = b'\xef'
+	yellowdoorclosedtile = b'\xfb'
+	yellowdooropentile = b'\x08'
+	greendoortile = b'\x71'
+	greenswitchtile = b'\x3E'
+	magentadoortile = b'\xd5'
+	magentaswitchtile = b'\x07'
+	
 	x = 0
 	y = 0
 	level = []
-	#pprint pixellist
 	for row in pixellist:
 		str = ""
 		splitrow = [row[i:i+1] for i in range(0, len(row))]
 		for col in splitrow:
 			if col == spawntile:
 				str += "S"
-			elif col == bgtile:
-				str += " "
 			elif col == walltile:
 				str += "W"
 			elif col == reddoortile:
@@ -271,6 +299,20 @@ def loadLevel(levelimg):
 				str += "B"
 			elif col == blueswitchtile:
 				str += "b"
+			elif col == yellowdoorclosedtile:
+				str += "Y"
+			elif col == yellowdooropentile:
+				str += "y"
+			elif col == greendoortile:
+				str += "G"
+			elif col == greenswitchtile:
+				str += "g"
+			elif col == magentadoortile:
+				str += "M"
+			elif col == magentaswitchtile:
+				str += "m"
+			else:
+				str += " "
 		
 		level.append(str)
 		
