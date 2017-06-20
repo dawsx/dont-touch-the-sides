@@ -44,15 +44,33 @@ class Ship(Entity):
 		self.accel_x = 0.0
 		self.accel_y = 0.0
 		self.mass = 3
+		self.max_accel = 1
 		self.trail = [[pos_x, pos_y]]
 		self.trail_len = 20
 		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
 
-	def update(self, lkey, rkey, ukey, dkey):
-		self.accel_x = int(rkey) - int(lkey)
-		self.accel_y = int(dkey) - int(ukey)
+	def update(self, lkey, rkey, ukey, dkey, spacebar):
+		if not spacebar:
+			self.accel_x = self.max_accel*(int(rkey) - int(lkey))
+			self.accel_y = self.max_accel*(int(dkey) - int(ukey))
+		else:
+			self.accel_x = -self.vel_x
+			self.accel_y = -self.vel_y
+			scale = self.max_accel/2
+			if abs(self.accel_x) > self.max_accel:
+				scale = abs(self.accel_x)
+			elif abs(self.accel_y) > self.max_accel:
+				scale = abs(self.accel_y)
+			self.accel_x *= self.max_accel/scale
+			self.accel_y *= self.max_accel/scale
+			# print ('acceleration: ({0},{1}); velocity: ({2},{3})'.format(self.accel_x, self.accel_y, self.vel_x, self.vel_y))
 		self.vel_x += self.accel_x/self.mass
 		self.vel_y += self.accel_y/self.mass
+		if abs(self.vel_x) < 0.05:
+			self.vel_x = 0
+		if abs(self.vel_y) < 0.05:
+			self.vel_y = 0
+		
 		self.pos_x += self.vel_x
 		self.pos_y += self.vel_y
 		self.hitbox.center = (self.pos_x, self.pos_y)
@@ -215,7 +233,7 @@ class GameScene(Scene):
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar= [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE)]
 		self.reddoorsopen = True
 		self.bluedoorsopen = True
 		for s in self.switches:
@@ -232,7 +250,7 @@ class GameScene(Scene):
 				if d.color == blue:
 					d.opened = True
 		if self.framecount > 15:
-			self.ship.update(left or akey, right or dkey, up or wkey, down or skey)
+			self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
 		self.ship.switchCheck(self.switches)
 		dead = self.ship.collide(self.walls + self.doors)
 		if dead:
