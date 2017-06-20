@@ -1,5 +1,6 @@
 import pygame
 import math
+import text
 
 pygame.init()
 
@@ -233,7 +234,7 @@ class GameScene(Scene):
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar= [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE)]
 		self.reddoorsopen = True
 		self.bluedoorsopen = True
 		for s in self.switches:
@@ -281,7 +282,6 @@ def loadLevel(levelimg):
 	height = 72
 	pixellist = []
 	file.seek(fileoffset)
-	temp = []
 	for x in range (0,height):
 		temp = file.read(width)
 		pixellist = [temp] + pixellist
