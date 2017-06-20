@@ -14,25 +14,16 @@ cyan = (0, 255, 255)
 blue = (0, 0, 255)
 magenta = (255, 0, 255)
 
-# display data
+# display constants
 res_x = 800
-res_y = 600
+res_y = 576
 fps = 60
 
-# tile constants for loading a level from bmp
-spawntile = b'\xff'
-bgtile = b'\x00'
-walltile = b'\xa4'
-bluedoortile = b'\xe8'
-blueswitchtile = b'\x09'
-reddoortile = b'\x4f'
-redswitchtile = b'\xef'
-yellowdoorclosedtile = b'\xfb'
-yellowdooropentile = b'\x08'
-greendoortile = b'\x71'
-greenswitchtile = b'\x3E'
-magentadoortile = b'\xd5'
-magentaswitchtile = b'\x07'
+# create the list of levels
+from os import listdir
+from os.path import isfile, join
+leveldir = "./levels"
+levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 pygame.display.set_caption('don\'t touch the sides')
@@ -72,10 +63,21 @@ class Ship(Entity):
 	def collide(self, walls):
 		for w in walls:
 			if w.hitbox.colliderect(self.hitbox):
-				gameLoop()
+				if w.color == gray:
+					return True
+				elif w.color == red or w.color == blue:
+					if w.opened == False:
+						return True
+	
+	def switchCheck(self, switches):
+		for s in switches:
+			if s.hitbox.colliderect(self.hitbox):
+				if s.color == red or s.color == blue:
+					s.flipped = True
 	
 	def draw(self):
-		pygame.draw.lines(gameDisplay, white, False, self.trail)
+		if len(self.trail) > 1:
+			pygame.draw.lines(gameDisplay, white, False, self.trail)
 		drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, self.ship_size)
 
 class Wall(Entity):
@@ -85,10 +87,11 @@ class Wall(Entity):
 		self.y = y
 		self.wid = wid
 		self.hi = hi
+		self.color = gray
 		self.hitbox = pygame.Rect(x, y, wid, hi)
 	
 	def draw(self):
-		pygame.draw.rect(gameDisplay, gray, [self.x, self.y, self.wid, self.hi])
+		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
 
 		
 # doors work as follows:
@@ -112,9 +115,9 @@ class Door(Entity):
 		
 	def draw(self):
 		if not self.opened:
-			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi])
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
 		else:
-			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi], 1)
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
 	
 class Switch(Entity):
 	def __init__(self, x, y, wid, hi, color):
@@ -126,12 +129,15 @@ class Switch(Entity):
 		self.hitbox = pygame.Rect(x, y, wid, hi)
 		self.color = color
 		self.flipped = False
+		self.font = pygame.font.SysFont('Arial Black', 14)
 
 	def draw(self):
 		if not self.flipped:
-			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi])
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
 		else:
-			pygame.draw.rect(gameDisplay, color, [self.x, self.y, self.wid, self.hi], 1)
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
+		switchtext = self.font.render('!', True, white)
+		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
 		
 class Scene(object):
 	def __init__(self):
@@ -165,94 +171,109 @@ class Level(object):
 	
 	def drawSwitches(self):
 		pass
-		
-class GameScene(Scene):
+
+class TitleScene(Scene):
 	def __init__(self):
-		super(GameScene, self).__init__()
-		level = 0
-		lkey = False
-		rkey = False
-		ukey = False
-		dkey = False
+		super(TitleScene, self).__init__()
 		
+	def handle_events(self, events):
+		for e in events:
+			if e.type == KEYDOWN and e.key == K_SPACE:
+				self.manager.go_to(GameScene(0))
+
+class GameScene(Scene):
+	def __init__(self, levelno):
+		super(GameScene, self).__init__()
+		self.framecount = 0
+		self.levelno = levelno
 		self.entities = pygame.sprite.Group()
 		self.walls = []
-		
-		x = 0
-		y = 8
-		
-		if level == 0:
-			level = [
-				"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W               WWWWWWWWWWWWWWWWWWWW             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"W               W                  W             W",
-				"WWWWWWWWWWWWWWWWW                  WWWWWWWWWWWWWWW",
-				"W                                                W",
-				"W                                                W",
-				"W     S                                          W",
-				"W                                                W",
-				"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                   W            W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"W                                                W",
-				"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",]
-		level_width = len(level[0])*16
-		level_height = len(level)*16
-		
-		for row in level:
-			for col in row:
-				if col == "S":
-					self.ship = Ship(x, y)
-				elif col == "W":
-					w = Wall(x, y, 16, 16)
+		self.doors = []
+		self.switches = []
+		level_tiles = loadLevel(levels[levelno])
+		for y in range (0, len(level_tiles)):
+			for x in range (0, len(level_tiles[0])):
+				tile = level_tiles[y][x]
+				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
+					self.ship = Ship((x+1)*8, (y+1)*8)
+				elif tile == "W":
+					w = Wall(x*8, y*8, 8, 8)
 					self.walls.append(w)
 					self.entities.add(w)
-				x += 16
-			y += 16
-			x = 0
-			
+				elif tile == "R":
+					d = Door(x*8, y*8, 8, 8, red)
+					self.doors.append(d)
+					self.entities.add(d)
+				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
+					s = Switch(x*8, y*8, 16, 16, red)
+					self.switches.append(s)
+					self.entities.add(s)
+				elif tile == "B":
+					d = Door(x*8, y*8, 8, 8, blue)
+					self.doors.append(d)
+					self.entities.add(d)
+				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
+					s = Switch(x*8, y*8, 16, 16, blue)
+					self.switches.append(s)
+					self.entities.add(s)
+		
 		self.entities.add(self.ship)
+		self.reddoorsopen = False
+		self.bluedoorsopen = False
+		self.yellowdoorsparity = False
+		self.greendoorsopen = False
 	
 	def render(self):
 		gameDisplay.fill(black)
 		for w in self.walls:
 			w.draw()
+		for d in self.doors:
+			d.draw()
+		for s in self.switches:
+			s.draw()
 		self.ship.draw()
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		lkey, rkey, ukey, dkey = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN)]
-		self.ship.update(lkey, rkey, ukey, dkey)
-		self.ship.collide(self.walls)
+		left, right, up, down, wkey, akey, skey, dkey = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d)]
+		self.reddoorsopen = True
+		self.bluedoorsopen = True
+		for s in self.switches:
+			if s.color == red and s.flipped == False:
+				self.reddoorsopen = False
+			elif s.color == blue and s.flipped == False:
+				self.bluedoorsopen = False
+		if self.reddoorsopen:
+			for d in self.doors:
+				if d.color == red:
+					d.opened = True
+		if self.bluedoorsopen:
+			for d in self.doors:
+				if d.color == blue:
+					d.opened = True
+		if self.framecount > 15:
+			self.ship.update(left or akey, right or dkey, up or wkey, down or skey)
+		self.ship.switchCheck(self.switches)
+		dead = self.ship.collide(self.walls + self.doors)
+		if dead:
+			self.manager.go_to(GameScene(self.levelno))
+		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size):
+			self.manager.go_to(GameScene(self.levelno + 1))
+		self.framecount += 1
 		
 	def handle_events(self, events):
 		for e in events:
 			if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
 				pass
 				
+class SceneManager(object):
+	def __init__(self):
+		self.go_to(GameScene(0))
+		
+	def go_to(self, scene):
+		self.scene = scene
+		self.scene.manager = self
+	
 def loadLevel(levelimg):
 	file = open(levelimg, 'rb')
 	fileoffset = 0x436
@@ -284,35 +305,35 @@ def loadLevel(levelimg):
 	y = 0
 	level = []
 	for row in pixellist:
-		str = ""
+		str = []
 		splitrow = [row[i:i+1] for i in range(0, len(row))]
 		for col in splitrow:
 			if col == spawntile:
-				str += "S"
+				str += ["S"]
 			elif col == walltile:
-				str += "W"
+				str += ["W"]
 			elif col == reddoortile:
-				str += "R"
+				str += ["R"]
 			elif col == redswitchtile:
-				str += "r"
+				str += ["r"]
 			elif col == bluedoortile:
-				str += "B"
+				str += ["B"]
 			elif col == blueswitchtile:
-				str += "b"
+				str += ["b"]
 			elif col == yellowdoorclosedtile:
-				str += "Y"
+				str += ["Y"]
 			elif col == yellowdooropentile:
-				str += "y"
+				str += ["y"]
 			elif col == greendoortile:
-				str += "G"
+				str += ["G"]
 			elif col == greenswitchtile:
-				str += "g"
+				str += ["g"]
 			elif col == magentadoortile:
-				str += "M"
+				str += ["M"]
 			elif col == magentaswitchtile:
-				str += "m"
+				str += ["m"]
 			else:
-				str += " "
+				str += [" "]
 		
 		level.append(str)
 		
@@ -348,16 +369,16 @@ def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 def gameLoop():
 	gameExit = False
 	
-	scene = GameScene()
+	manager = SceneManager()
 	
 	while not gameExit:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				gameExit = True
 		
-		scene.handle_events(pygame.event.get())
-		scene.update()
-		scene.render()
+		manager.scene.handle_events(pygame.event.get())
+		manager.scene.update()
+		manager.scene.render()
 		pygame.display.update()
 		clock.tick(fps)
 		
