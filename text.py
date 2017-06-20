@@ -518,5 +518,11 @@ def placeString(gameDisplay, string, color, x_0, y_0, scale):
 		
 		x_0 += scale*len(outchar[0])
 
-def placeString_effects(gameDisplay, string, effects, x_0, y_0, scale):
+def placeString_effects(gameDisplay, string, effects, params, x_0, y_0, scale):
+	pass
+	
+def waveEffect(gameDisplay, string, param, x_0, y_0, scale):
+	pass
+
+def rainbowEffect(gameDisplay, string, param, x_0, y_0, scale):
 	pass
