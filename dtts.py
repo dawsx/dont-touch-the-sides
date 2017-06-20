@@ -237,6 +237,8 @@ class GameScene(Scene):
 		dead = self.ship.collide(self.walls + self.doors)
 		if dead:
 			self.manager.go_to(GameScene(self.levelno))
+			
+		# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
 		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size):
 			self.manager.go_to(GameScene(self.levelno + 1))
 		self.framecount += 1
@@ -280,9 +282,7 @@ def loadLevel(levelimg):
 	greenswitchtile = b'\x3E'
 	magentadoortile = b'\xd5'
 	magentaswitchtile = b'\x07'
-	
-	x = 0
-	y = 0
+
 	level = []
 	for row in pixellist:
 		str = []
