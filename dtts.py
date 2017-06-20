@@ -152,26 +152,6 @@ class Scene(object):
 	def handle_events(self, events):
 		raise NotImplementedError
 		
-class Level(object):
-	def __init__(self, levelimg):
-		self.walls = []
-		self.bluedoors = []
-		self.blueswitches = []
-		self.reddoors = []
-		self.redswitches = []
-		self.spawnpoint = []
-		self.entities = pygame.sprite.Group()
-		self.tiles = loadLevel(levelimg)
-		
-	def drawWalls(self):
-		pass
-	
-	def drawDoors(self):
-		pass
-	
-	def drawSwitches(self):
-		pass
-
 class TitleScene(Scene):
 	def __init__(self):
 		super(TitleScene, self).__init__()
