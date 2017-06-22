@@ -240,9 +240,11 @@ class TitleScene(Scene):
 	def update(self):
 		self.framecount += 1
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_RETURN)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		if enter:
 			self.manager.go_to(GameScene(0))
+		if escape:
+			self.ship = Ship(res_x/2, res_y/2)
 		self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
 		
 	def handle_events(self, events):
@@ -263,7 +265,8 @@ class GameScene(Scene):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
 				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
-					self.ship = Ship((x+1)*8, (y+1)*8)
+					self.spawn_x = (x+1)*8
+					self.spawn_y = (y+1)*8
 				elif tile == "W":
 					w = Wall(x*8, y*8, 8, 8)
 					if x == 0 or level_tiles[y][x-1] != "W":
@@ -292,7 +295,7 @@ class GameScene(Scene):
 					s = Switch(x*8, y*8, 16, 16, blue)
 					self.switches.append(s)
 					self.entities.add(s)
-		
+		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
