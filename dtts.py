@@ -3,13 +3,14 @@ import math
 import text
 
 pygame.init()
-# debug option
+
+# debug option, skips levels by pressing enter
 skiplevels = False
 
 # colors
 white = (255, 255, 255)
 black = (0, 0, 0)
-gray = (150,150,150)
+#gray = (150,150,150)
 red = (255, 0, 0)
 yellow = (255, 255, 0)
 green = (0, 255, 0)
@@ -84,7 +85,7 @@ class Ship(Entity):
 	def collide(self, walls):
 		for w in walls:
 			if w.hitbox.colliderect(self.hitbox):
-				if w.color == gray:
+				if w.color == white:
 					return True
 				elif w.color == red or w.color == blue:
 					if w.opened == False:
@@ -108,11 +109,23 @@ class Wall(Entity):
 		self.y = y
 		self.wid = wid
 		self.hi = hi
-		self.color = gray
+		self.color = white
 		self.hitbox = pygame.Rect(x, y, wid, hi)
+		self.leftline = False
+		self.rightline = False
+		self.upline = False
+		self.downline = False
 	
 	def draw(self):
-		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+		#pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+		if self.leftline:
+			pygame.draw.line(gameDisplay, self.color, [self.x, self.y],[self.x, self.y+self.hi-1],1)
+		if self.rightline:
+			pygame.draw.line(gameDisplay, self.color, [self.x+self.wid-1, self.y],[self.x+self.wid-1, self.y+self.hi-1])
+		if self.upline:
+			pygame.draw.line(gameDisplay, self.color, [self.x, self.y],[self.x+self.wid-1, self.y])
+		if self.downline:
+			pygame.draw.line(gameDisplay, self.color, [self.x, self.y+self.hi-1],[self.x+self.wid-1, self.y+self.hi-1])
 
 		
 # doors work as follows:
@@ -195,7 +208,7 @@ class TitleScene(Scene):
 		
 		y_line = 67
 		x_start = 67
-		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 6, 0)
+		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 6)
 		
 		linespace = 48
 		
@@ -253,6 +266,14 @@ class GameScene(Scene):
 					self.ship = Ship((x+1)*8, (y+1)*8)
 				elif tile == "W":
 					w = Wall(x*8, y*8, 8, 8)
+					if x == 0 or level_tiles[y][x-1] != "W":
+						w.leftline = True
+					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
+						w.rightline = True
+					if y == 0 or level_tiles[y-1][x] != "W":
+						w.upline = True
+					if y == len(level_tiles)-1 or level_tiles[y+1][x] != "W":
+						w.downline = True
 					self.walls.append(w)
 					self.entities.add(w)
 				elif tile == "R":
