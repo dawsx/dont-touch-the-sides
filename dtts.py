@@ -1,6 +1,7 @@
 import pygame
 import math
 import text
+import random
 
 pygame.init()
 
@@ -207,32 +208,38 @@ class TitleScene(Scene):
 		spacebarcolor = magenta
 		
 		y_line = 67
-		x_start = 67
+		wid_str = text.sizeString("don't touch the sides",6)[0]
+		x_start = (res_x - wid_str)/2
 		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 6)
+
 		
 		linespace = 48
 		
-		x_start = 172
 		y_line = 320
+		wid_str = text.sizeString("wasd or <_^> to move")[0]
+		x_start = (res_x - wid_str)/2
 		x_next = text.placeString(gameDisplay, "wasd", wasdcolor, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "or", white, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "<_^>", arrowcolor, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "move", green, x_next, y_line)
 		
-		x_start = 218
 		y_line += linespace
+		wid_str = text.sizeString("spacebar to stop")[0]
+		x_start = (res_x - wid_str)/2
 		x_next = text.placeString(gameDisplay, "spacebar", spacebarcolor, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "stop", red, x_next, y_line)
 
-		x_start = 130
 		y_line += linespace
+		wid_str = text.sizeString("find the exit in each level")[0]
+		x_start = (res_x - wid_str)/2
 		x_next = text.placeString(gameDisplay, "find the exit", cyan, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "in each level", white, x_next, y_line)
 
-		x_start = 102
 		y_line += linespace
+		wid_str = text.sizeString("press enter/return to begin")[0]
+		x_start = (res_x - wid_str)/2
 		x_next = text.placeString(gameDisplay, "press", white, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "enter/return", entercolor, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "to begin", white, x_next, y_line)
@@ -254,12 +261,15 @@ class TitleScene(Scene):
 class GameScene(Scene):
 	def __init__(self, levelno):
 		super(GameScene, self).__init__()
+		self.ispaused = False
+		self.pausedelay = 0
 		self.framecount = 0
 		self.levelno = levelno
 		self.entities = pygame.sprite.Group()
 		self.walls = []
 		self.doors = []
 		self.switches = []
+		self.pausecolors = random.shuffle([red, yellow, green, cyan, blue, magenta])
 		level_tiles = loadLevel(levels[levelno])
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
@@ -310,39 +320,61 @@ class GameScene(Scene):
 			d.draw()
 		for s in self.switches:
 			s.draw()
-		self.ship.draw()
+		if not self.ispaused:
+			self.ship.draw()
+		else:
+			wid_str, hi_str = text.sizeString("pause",8)
+			x_next = (res_x - wid_str)/2
+			y_line = (res_y - hi_str)/2
+			if self.pauseframes % 20 == 0:
+				self.pausecolors = random.shuffle([red, yellow, green, cyan, blue, magenta])
+			x = 0
+			for c in "pause":
+				x_next = text.placeChar(gameDisplay, c, self.pausecolors[x], x_next, y_line,8)
+				x += 1
+			
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
 		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
-		self.reddoorsopen = True
-		self.bluedoorsopen = True
-		for s in self.switches:
-			if s.color == red and s.flipped == False:
-				self.reddoorsopen = False
-			elif s.color == blue and s.flipped == False:
-				self.bluedoorsopen = False
-		if self.reddoorsopen:
-			for d in self.doors:
-				if d.color == red:
-					d.opened = True
-		if self.bluedoorsopen:
-			for d in self.doors:
-				if d.color == blue:
-					d.opened = True
-		if self.framecount > 15:
-			self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
-		self.ship.switchCheck(self.switches)
-		dead = self.ship.collide(self.walls + self.doors)
-		if dead:
-			self.manager.go_to(GameScene(self.levelno))
-		if escape:
-			self.manager.go_to(TitleScene())
-			
-		# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
-		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 15 and skiplevels == True):
-			self.manager.go_to(GameScene(self.levelno + 1))
-		self.framecount += 1
+		if self.ispaused:
+			if escape and self.pauseframes > 15:
+				self.ispaused = False
+				self.pausedelay = 15
+			self.pauseframes += 1
+		else:
+			self.reddoorsopen = True
+			self.bluedoorsopen = True
+			for s in self.switches:
+				if s.color == red and s.flipped == False:
+					self.reddoorsopen = False
+				elif s.color == blue and s.flipped == False:
+					self.bluedoorsopen = False
+			if self.reddoorsopen:
+				for d in self.doors:
+					if d.color == red:
+						d.opened = True
+			if self.bluedoorsopen:
+				for d in self.doors:
+					if d.color == blue:
+						d.opened = True
+			if self.framecount > 15:
+				self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
+			self.ship.switchCheck(self.switches)
+			dead = self.ship.collide(self.walls + self.doors)
+			if dead:
+				self.manager.go_to(GameScene(self.levelno))
+			if escape and self.pausedelay <= 0:
+				#self.manager.go_to(TitleScene())
+				self.ispaused = True
+				self.pauseframes = 0
+				
+			# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
+			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 15 and skiplevels == True):
+				self.manager.go_to(GameScene(self.levelno + 1))
+			self.framecount += 1
+			if self.pausedelay > 0:
+				self.pausedelay -= 1
 		
 	def handle_events(self, events):
 		for e in events:

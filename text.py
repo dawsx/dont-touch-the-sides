@@ -60,13 +60,8 @@ def placeString(gameDisplay, string, color, x_0, y_0, scale = 4, spacing = 0):
 		char_x = placeWord(gameDisplay, w, color, char_x, char_y, scale, spacing)
 	return char_x
 
-# CURRENTLY BROKEN, WILL FIX AS NEEDED
-def lenString(string, scale = 4):
+def sizeString(string, scale = 4):
 	length = 0
 	for c in string:
-		if c == ' ':
-			length += scale*6
-		else:
-			length += scale*(len(chardict[c][0])+1)
-	
-	return length - scale*5
+		length += scale*(len(chardict[c][0])+1)
+	return (length - scale, scale * len(chardict['0']))
