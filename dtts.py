@@ -7,7 +7,7 @@ pygame.init()
 # colors
 white = (255, 255, 255)
 black = (0, 0, 0)
-gray = (127, 127, 127)
+gray = (150,150,150)
 red = (255, 0, 0)
 yellow = (255, 255, 0)
 green = (0, 255, 0)
@@ -162,7 +162,7 @@ class Scene(object):
 	def __init__(self):
 		pass
 		
-	def render(self, gameDisplay):
+	def render(self):
 		raise NotImplementedError
 		
 	def update(self):
@@ -174,11 +174,65 @@ class Scene(object):
 class TitleScene(Scene):
 	def __init__(self):
 		super(TitleScene, self).__init__()
+		self.framecount = 0
+		self.entities = pygame.sprite.Group()
+		self.ship = Ship(res_x/2, res_y/2)
+		self.entities.add(self.ship)
+	
+	def render(self):
+		gameDisplay.fill(black)
+		self.ship.draw()
+		flashtimer = 40
+		if (self.framecount % flashtimer < flashtimer/2):
+			entercolor = yellow
+		else:
+			entercolor = blue
+		wasdcolor = magenta
+		arrowcolor = magenta
+		spacebarcolor = magenta
+		
+		y_line = 67
+		x_start = 67
+		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 6, 0)
+		
+		linespace = 48
+		
+		x_start = 172
+		y_line = 320
+		x_next = text.placeString(gameDisplay, "wasd", wasdcolor, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "or", white, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "<_^>", arrowcolor, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "move", green, x_next, y_line)
+		
+		x_start = 218
+		y_line += linespace
+		x_next = text.placeString(gameDisplay, "spacebar", spacebarcolor, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "stop", red, x_next, y_line)
+
+		x_start = 130
+		y_line += linespace
+		x_next = text.placeString(gameDisplay, "find the exit", cyan, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "in each level", white, x_next, y_line)
+
+		x_start = 102
+		y_line += linespace
+		x_next = text.placeString(gameDisplay, "press", white, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "enter/return", entercolor, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "to begin", white, x_next, y_line)
+
+	def update(self):
+		self.framecount += 1
+		pressed = pygame.key.get_pressed()
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_RETURN)]
+		if enter:
+			self.manager.go_to(GameScene(0))
+		self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
 		
 	def handle_events(self, events):
 		for e in events:
-			if e.type == KEYDOWN and e.key == K_SPACE:
-				self.manager.go_to(GameScene(0))
+			pass
 
 class GameScene(Scene):
 	def __init__(self, levelno):
@@ -234,7 +288,7 @@ class GameScene(Scene):
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE)]
 		self.reddoorsopen = True
 		self.bluedoorsopen = True
 		for s in self.switches:
@@ -256,6 +310,8 @@ class GameScene(Scene):
 		dead = self.ship.collide(self.walls + self.doors)
 		if dead:
 			self.manager.go_to(GameScene(self.levelno))
+		if escape:
+			self.manager.go_to(TitleScene())
 			
 		# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
 		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size):
@@ -264,12 +320,11 @@ class GameScene(Scene):
 		
 	def handle_events(self, events):
 		for e in events:
-			if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-				pass
+			pass
 				
 class SceneManager(object):
 	def __init__(self):
-		self.go_to(GameScene(0))
+		self.go_to(TitleScene())
 		
 	def go_to(self, scene):
 		self.scene = scene
