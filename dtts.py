@@ -3,6 +3,8 @@ import math
 import text
 
 pygame.init()
+# debug option
+skiplevels = False
 
 # colors
 white = (255, 255, 255)
@@ -288,7 +290,7 @@ class GameScene(Scene):
 		
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		self.reddoorsopen = True
 		self.bluedoorsopen = True
 		for s in self.switches:
@@ -314,7 +316,7 @@ class GameScene(Scene):
 			self.manager.go_to(TitleScene())
 			
 		# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
-		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size):
+		if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 15 and skiplevels == True):
 			self.manager.go_to(GameScene(self.levelno + 1))
 		self.framecount += 1
 		
