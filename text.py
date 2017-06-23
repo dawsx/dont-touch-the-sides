@@ -1,8 +1,9 @@
 import pygame
 import math
+from globals import *
 import struct
 
-file = open('charmap.bmp', 'rb')
+file = open('gfx\charmap.bmp', 'rb')
 fileoffset = 0x436
 file.seek(0x12)
 bwidth = file.read(4)
@@ -45,20 +46,12 @@ def placeChar(gameDisplay, char, color, x_0, y_0, scale = 4, spacing = 0):
 				pygame.draw.rect(gameDisplay, color, [xcoord, ycoord, scale-spacing, scale-spacing])
 	return x_0 + scale*(len(outchar[0])+1)
 
-def placeWord(gameDisplay, word, color, x_0, y_0, scale = 4, spacing = 0):
-	char_x = x_0
-	char_y = y_0
-	for c in word:
-		char_x = placeChar(gameDisplay, c, color, char_x, char_y, scale, spacing)
-	return char_x + 5*scale
-
 def placeString(gameDisplay, string, color, x_0, y_0, scale = 4, spacing = 0):
 	char_x = x_0
 	char_y = y_0
-	words = string.split(' ')
-	for w in words:
-		char_x = placeWord(gameDisplay, w, color, char_x, char_y, scale, spacing)
-	return char_x
+	for c in string:
+		char_x = placeChar(gameDisplay, c, color, char_x, char_y, scale, spacing)
+	return char_x + 5*scale
 
 def sizeString(string, scale = 4):
 	length = 0
