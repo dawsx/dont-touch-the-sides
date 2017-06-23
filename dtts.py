@@ -11,7 +11,6 @@ skiplevels = False
 # colors
 white = (255, 255, 255)
 black = (0, 0, 0)
-#gray = (150,150,150)
 red = (255, 0, 0)
 yellow = (255, 255, 0)
 green = (0, 255, 0)
@@ -116,17 +115,37 @@ class Wall(Entity):
 		self.rightline = False
 		self.upline = False
 		self.downline = False
+		self.upleft = False
+		self.upright = False
+		self.downleft = False
+		self.downright = False
 	
-	def draw(self):
+	def draw(self, ship_xy):
 		#pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+		diff_x = ship_xy[0] - self.x
+		diff_y = ship_xy[1] - self.y
+		diff_x *= diff_x
+		diff_y *= diff_y
+		#thickness = int(40000/(diff_x+diff_y))
+		thickness = 2
+		if thickness > 8:
+			thickness = 8
 		if self.leftline:
-			pygame.draw.line(gameDisplay, self.color, [self.x, self.y],[self.x, self.y+self.hi-1],1)
+			gameDisplay.fill(white, pygame.Rect([self.x, self.y, thickness, self.hi]))
 		if self.rightline:
-			pygame.draw.line(gameDisplay, self.color, [self.x+self.wid-1, self.y],[self.x+self.wid-1, self.y+self.hi-1])
+			gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness, self.y, thickness, self.hi]))
 		if self.upline:
-			pygame.draw.line(gameDisplay, self.color, [self.x, self.y],[self.x+self.wid-1, self.y])
+			gameDisplay.fill(white, pygame.Rect([self.x, self.y, self.wid, thickness]))
 		if self.downline:
-			pygame.draw.line(gameDisplay, self.color, [self.x, self.y+self.hi-1],[self.x+self.wid-1, self.y+self.hi-1])
+			gameDisplay.fill(white, pygame.Rect([self.x, self.y+self.hi-thickness, self.wid, thickness]))
+		if self.upleft:
+			gameDisplay.fill(white, pygame.Rect([self.x, self.y, thickness, thickness]))
+		if self.upright:
+			gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness, self.y, thickness, thickness]))
+		if self.downleft:
+			gameDisplay.fill(white, pygame.Rect([self.x, self.y+self.hi-thickness, thickness, thickness]))
+		if self.downright:
+			gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness]))
 
 		
 # doors work as follows:
@@ -269,7 +288,7 @@ class GameScene(Scene):
 		self.walls = []
 		self.doors = []
 		self.switches = []
-		self.pausecolors = random.shuffle([red, yellow, green, cyan, blue, magenta])
+		self.pausecolors = [red, yellow, green, cyan, blue, magenta]
 		level_tiles = loadLevel(levels[levelno])
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
@@ -287,6 +306,14 @@ class GameScene(Scene):
 						w.upline = True
 					if y == len(level_tiles)-1 or level_tiles[y+1][x] != "W":
 						w.downline = True
+					if x != 0 and y != 0 and level_tiles[y][x-1] == "W" and level_tiles[y-1][x] == "W" and level_tiles[y-1][x-1] != "W":
+						w.upleft = True
+					if x != len(level_tiles[0])-1 and y != 0 and level_tiles[y][x+1] == "W" and level_tiles[y-1][x] == "W" and level_tiles[y-1][x+1] != "W":
+						w.upright = True
+					if x != 0 and y != len(level_tiles)-1 and level_tiles[y][x-1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x-1] != "W":
+						w.downleft = True
+					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
+						w.downright = True
 					self.walls.append(w)
 					self.entities.add(w)
 				elif tile == "R":
@@ -315,7 +342,7 @@ class GameScene(Scene):
 	def render(self):
 		gameDisplay.fill(black)
 		for w in self.walls:
-			w.draw()
+			w.draw((self.ship.pos_x, self.ship.pos_y))
 		for d in self.doors:
 			d.draw()
 		for s in self.switches:
@@ -326,12 +353,7 @@ class GameScene(Scene):
 			wid_str, hi_str = text.sizeString("pause",8)
 			x_next = (res_x - wid_str)/2
 			y_line = (res_y - hi_str)/2
-			if self.pauseframes % 20 == 0:
-				self.pausecolors = random.shuffle([red, yellow, green, cyan, blue, magenta])
-			x = 0
-			for c in "pause":
-				x_next = text.placeChar(gameDisplay, c, self.pausecolors[x], x_next, y_line,8)
-				x += 1
+			x_next = text.placeString(gameDisplay, "pause", yellow, x_next, y_line, 8)
 			
 		
 	def update(self):
