@@ -4,7 +4,7 @@ import text
 import random
 
 # debug option, skips levels by pressing enter
-skiplevels = False
+skiplevels = True
 
 # colors
 white = (255, 255, 255)

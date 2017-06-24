@@ -225,7 +225,7 @@ def loadLevel(levelimg):
 	# tile constants for loading a level from bmp
 	spawntile = b'\xff'
 	bgtile = b'\x00'
-	walltile = b'\xa4'
+	walltile = b'\x07'
 	bluedoortile = b'\xe8'
 	blueswitchtile = b'\x09'
 	reddoortile = b'\x4f'
