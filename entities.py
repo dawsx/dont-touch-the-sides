@@ -58,7 +58,7 @@ class Ship(Entity):
 			if w.hitbox.colliderect(self.hitbox):
 				if w.color == white or w.color == black:
 					return True
-				elif w.color == red or w.color == blue or w.color == yellow:
+				else:
 					if w.opened == False:
 						return True
 	
@@ -67,9 +67,10 @@ class Ship(Entity):
 			if s.hitbox.colliderect(self.hitbox):
 				s.flipped = True
 				if s.color == green:
-					return [True, False]
+					return [True, True]
 				elif s.color == magenta:
-					return [False, True]
+					return [True, False]
+
 		return [False, False]
 	
 	def draw(self):

@@ -94,6 +94,7 @@ class GameScene(Scene):
 		self.walls = []
 		self.doors = []
 		self.switches = []
+		self.ghostlevel = True
 		self.pausecolors = [red, yellow, green, cyan, blue, magenta]
 		level_tiles = loadLevel(levels[levelno])
 		for y in range (0, len(level_tiles)):
@@ -103,7 +104,11 @@ class GameScene(Scene):
 					self.spawn_x = (x+1)*8
 					self.spawn_y = (y+1)*8
 				elif tile == "W":
-					w = Wall(x*8, y*8, 8, 8)
+					if self.ghostlevel:
+						wcolor = black
+					else:
+						wcolor = white
+					w = Wall(x*8, y*8, 8, 8, wcolor)
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
 					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
@@ -138,11 +143,34 @@ class GameScene(Scene):
 					s = Switch(x*8, y*8, 16, 16, blue)
 					self.switches.append(s)
 					self.entities.add(s)
+				elif tile == "Y" or tile == "y":
+					d = Door(x*8, y*8, 8, 8, yellow)
+					if tile == "y":
+						d.opened = True
+					self.doors.append(d)
+					self.entities.add(d)
+				elif tile == "G":
+					d = Door(x*8, y*8, 8, 8, green)
+					self.doors.append(d)
+					self.entities.add(d)
+				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
+					s = Switch(x*8, y*8, 16, 16, green)
+					self.switches.append(s)
+					self.entities.add(s)
+				elif tile == "M":
+					d = Door(x*8, y*8, 8, 8, magenta)
+					d.opened = True
+					self.doors.append(d)
+					self.entities.add(d)
+				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
+					s = Switch(x*8, y*8, 16, 16, magenta)
+					s.flipped = True
+					self.switches.append(s)
+					self.entities.add(s)
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
-		self.yellowdoorsparity = False
 		self.greendoorsopen = False
 	
 	def render(self):
@@ -170,6 +198,7 @@ class GameScene(Scene):
 				self.pausedelay = 15
 			self.pauseframes += 1
 		else:
+
 			self.reddoorsopen = True
 			self.bluedoorsopen = True
 			for s in self.switches:
@@ -177,17 +206,37 @@ class GameScene(Scene):
 					self.reddoorsopen = False
 				elif s.color == blue and s.flipped == False:
 					self.bluedoorsopen = False
+			
 			if self.reddoorsopen:
 				for d in self.doors:
 					if d.color == red:
 						d.opened = True
+			
 			if self.bluedoorsopen:
 				for d in self.doors:
 					if d.color == blue:
 						d.opened = True
-			if self.framecount > 15:
-				self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
-			self.ship.switchCheck(self.switches)
+			
+			for d in self.doors:	
+				if d.color == yellow and self.framecount % 120 == 0 and self.framecount > 0:
+					d.opened = not d.opened
+			
+			greencheck = self.ship.switchCheck(self.switches)
+			if greencheck[0]:
+				self.greendoorsopen = greencheck[1]
+				
+			for s in self.switches:
+				if s.color == green:
+					s.flipped = self.greendoorsopen
+				elif s.color == magenta:
+					s.flipped = not self.greendoorsopen
+			
+			for d in self.doors:
+				if d.color == green:
+					d.opened = self.greendoorsopen
+				elif d.color == magenta:
+					d.opened = not self.greendoorsopen
+			
 			dead = self.ship.collide(self.walls + self.doors)
 			if dead:
 				self.manager.go_to(GameScene(self.levelno))
@@ -195,9 +244,12 @@ class GameScene(Scene):
 				#self.manager.go_to(TitleScene())
 				self.ispaused = True
 				self.pauseframes = 0
+
+			if self.framecount > 15:
+				self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
 				
 			# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
-			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 15 and skiplevels == True):
+			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 10 and skiplevels == True):
 				self.manager.go_to(GameScene(self.levelno + 1))
 			self.framecount += 1
 			if self.pausedelay > 0:
@@ -225,7 +277,7 @@ def loadLevel(levelimg):
 	# tile constants for loading a level from bmp
 	spawntile = b'\xff'
 	bgtile = b'\x00'
-	walltile = b'\x07'
+	walltile = b'\xa4'
 	bluedoortile = b'\xe8'
 	blueswitchtile = b'\x09'
 	reddoortile = b'\x4f'
@@ -233,7 +285,7 @@ def loadLevel(levelimg):
 	yellowdoorclosedtile = b'\xfb'
 	yellowdooropentile = b'\x08'
 	greendoortile = b'\x71'
-	greenswitchtile = b'\x3E'
+	greenswitchtile = b'\x3e'
 	magentadoortile = b'\xd5'
 	magentaswitchtile = b'\x07'
 
@@ -270,6 +322,7 @@ def loadLevel(levelimg):
 				str += [" "]
 		
 		level.append(str)
-		
+	# from pprint import pprint
+	# pprint (level)
 	return level
 	
