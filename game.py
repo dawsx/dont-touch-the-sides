@@ -1,7 +1,6 @@
 import pygame
 import math
 import text
-import random
 from globals import *
 from entities import *
 from scenes import *

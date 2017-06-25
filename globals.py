@@ -1,7 +1,6 @@
 import pygame
 import math
 import text
-import random
 
 # debug option, skips levels by pressing enter
 skiplevels = True

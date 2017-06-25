@@ -1,7 +1,6 @@
 import pygame
 import math
 import text
-import random
 from globals import *
 from entities import *
 
@@ -94,7 +93,7 @@ class GameScene(Scene):
 		self.walls = []
 		self.doors = []
 		self.switches = []
-		self.ghostlevel = True
+		self.ghostlevel = False
 		self.pausecolors = [red, yellow, green, cyan, blue, magenta]
 		level_tiles = loadLevel(levels[levelno])
 		for y in range (0, len(level_tiles)):
