@@ -18,7 +18,7 @@ magenta = (255, 0, 255)
 # display constants
 res_x = 800
 res_y = 576
-fps = 60
+fps = 6
 
 # create the list of levels
 from os import listdir

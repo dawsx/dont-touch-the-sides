@@ -25,7 +25,7 @@ class TitleScene(Scene):
 	
 	def render(self):
 		gameDisplay.fill(black)
-		self.ship.draw()
+		self.ship.draw(self.framecount)
 		flashtimer = 40
 		if (self.framecount % flashtimer < flashtimer/2):
 			entercolor = yellow
@@ -181,7 +181,7 @@ class GameScene(Scene):
 		for s in self.switches:
 			s.draw()
 		if not self.ispaused:
-			self.ship.draw()
+			self.ship.draw(self.framecount)
 		else:
 			wid_str, hi_str = text.sizeString("pause",8)
 			x_next = (res_x - wid_str)/2

@@ -72,10 +72,13 @@ class Ship(Entity):
 
 		return [False, False]
 	
-	def draw(self):
-		if len(self.trail) > 1:
-			pygame.draw.lines(gameDisplay, white, False, self.trail)
-		drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, self.ship_size)
+	def draw(self, framecount = 16):
+		if framecount > 15:
+			if len(self.trail) > 1:
+				pygame.draw.lines(gameDisplay, white, False, self.trail)
+			drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, self.ship_size)
+		else:
+			drawSpawnShip(self.pos_x, self.pos_y, self.ship_size, framecount)
 
 class Wall(Entity):
 	def __init__(self, x, y, wid, hi, color):
@@ -120,8 +123,8 @@ class Wall(Entity):
 			thickscale = 40000
 			diff_x1 = ship_xy[0] - self.x
 			diff_y1 = ship_xy[1] - self.y
-			diff_x2 = ship_xy[0] - self.x - self.wid/2
-			diff_y2 = ship_xy[1] - self.y - self.hi/2
+			diff_x2 = ship_xy[0] - self.x - int(self.wid/2)
+			diff_y2 = ship_xy[1] - self.y - int(self.hi/2)
 			diff_x1 *= diff_x1
 			diff_y1 *= diff_y1
 			diff_x2 *= diff_x2
@@ -234,3 +237,19 @@ def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	pygame.draw.rect(gameDisplay, cyan, [pos_plume_y_x, pos_plume_y_y, w_plume_y, l_plume_y])
 	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/4, pos_y-ship_size/2, ship_size/2, ship_size])
 	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2, pos_y-ship_size/4, ship_size, ship_size/2])
+	
+def drawSpawnShip(pos_x, pos_y, ship_size, framecount):
+	spawnmatrix = [[99,  6,  1, 99],
+	               [ 9,  3, 11,  4],
+	               [ 2,  8,  0,  7],
+	               [99,  5, 10, 99]]
+				   
+	if framecount > 12:
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/(framecount-10)-ship_size, pos_y-ship_size/4, 2*ship_size/(framecount-10)+2*ship_size, ship_size/2])
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/4, pos_y-ship_size/(framecount-10)-ship_size, ship_size/2, 2*ship_size/(framecount-10)+2*ship_size])
+	
+	for y in range(0, 4):
+		for x in range(0, 4):
+			if spawnmatrix[y][x] < framecount:
+				pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2+x*ship_size/4, pos_y-ship_size/2+y*ship_size/4, ship_size/4, ship_size/4])
+	
