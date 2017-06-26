@@ -19,21 +19,27 @@ class TitleScene(Scene):
 	def __init__(self):
 		super(TitleScene, self).__init__()
 		self.framecount = 0
+		self.shipframes = 0
 		self.entities = pygame.sprite.Group()
 		self.ship = Ship(res_x/2, res_y/2)
 		self.entities.add(self.ship)
 	
 	def render(self):
 		gameDisplay.fill(black)
-		self.ship.draw(self.framecount)
+		self.ship.draw(self.shipframes)
 		flashtimer = 40
 		if (self.framecount % flashtimer < flashtimer/2):
 			entercolor = yellow
 		else:
 			entercolor = blue
-		wasdcolor = magenta
-		arrowcolor = magenta
-		spacebarcolor = magenta
+		if (self.framecount) % flashtimer < flashtimer/2:
+			wasdcolor = magenta
+			arrowcolor = green
+			spacebarcolor = blue
+		else:
+			wasdcolor = green
+			arrowcolor = magenta
+			spacebarcolor = red			
 		
 		y_line = 67
 		wid_str = text.sizeString("don't touch the sides",6)[0]
@@ -46,6 +52,7 @@ class TitleScene(Scene):
 		y_line = 320
 		wid_str = text.sizeString("wasd or <_^> to move")[0]
 		x_start = (res_x - wid_str)/2
+
 		x_next = text.placeString(gameDisplay, "wasd", wasdcolor, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "or", white, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "<_^>", arrowcolor, x_next, y_line)
@@ -62,7 +69,7 @@ class TitleScene(Scene):
 		y_line += linespace
 		wid_str = text.sizeString("find the exit in each level")[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "find the exit", cyan, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "find the exit", white, x_start, y_line)
 		x_next = text.placeString(gameDisplay, "in each level", white, x_next, y_line)
 
 		y_line += linespace
@@ -73,14 +80,17 @@ class TitleScene(Scene):
 		x_next = text.placeString(gameDisplay, "to begin", white, x_next, y_line)
 
 	def update(self):
-		self.framecount += 1
 		pressed = pygame.key.get_pressed()
 		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		if enter:
 			self.manager.go_to(GameScene(0))
-		if escape:
+		if escape and self.shipframes > 15:
 			self.ship = Ship(res_x/2, res_y/2)
-		self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
+			self.shipframes = 0
+		if self.shipframes > 15:
+			self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
+		self.framecount += 1
+		self.shipframes += 1
 
 class GameScene(Scene):
 	def __init__(self, levelno):
@@ -93,7 +103,10 @@ class GameScene(Scene):
 		self.walls = []
 		self.doors = []
 		self.switches = []
-		self.ghostlevel = False
+		if "g" in levels[levelno]:
+			self.ghostlevel = True
+		else:
+			self.ghostlevel = False
 		self.pausecolors = [red, yellow, green, cyan, blue, magenta]
 		level_tiles = loadLevel(levels[levelno])
 		for y in range (0, len(level_tiles)):

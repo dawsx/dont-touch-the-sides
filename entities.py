@@ -134,14 +134,15 @@ class Wall(Entity):
 			thickness_dl = int(thickscale/(diff_x1+diff_y2+1))
 			thickness_dr = int(thickscale/(diff_x2+diff_y2+1))
 			
-			if thickness_ul > 8:
-				thickness_ul = 8		
-			if thickness_ur > 8:
-				thickness_ur = 8		
-			if thickness_dl > 8:
-				thickness_dl = 8		
-			if thickness_dr > 8:
-				thickness_dr = 8
+			max_thickness = 15
+			if thickness_ul > max_thickness:
+				thickness_ul = max_thickness		
+			if thickness_ur > max_thickness:
+				thickness_ur = max_thickness		
+			if thickness_dl > max_thickness:
+				thickness_dl = max_thickness		
+			if thickness_dr > max_thickness:
+				thickness_dr = max_thickness
 			
 			if self.leftline:
 				gameDisplay.fill(white, pygame.Rect([self.x, self.y, thickness_ul, self.hi/2]))
@@ -245,8 +246,9 @@ def drawSpawnShip(pos_x, pos_y, ship_size, framecount):
 	               [99,  5, 10, 99]]
 				   
 	if framecount > 12:
-		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/(framecount-10)-ship_size, pos_y-ship_size/4, 2*ship_size/(framecount-10)+2*ship_size, ship_size/2])
-		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/4, pos_y-ship_size/(framecount-10)-ship_size, ship_size/2, 2*ship_size/(framecount-10)+2*ship_size])
+		plumescale = (18-framecount)*ship_size/2
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-plumescale/2, pos_y-ship_size/4, plumescale, ship_size/2])
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/4, pos_y-plumescale/2, ship_size/2, plumescale])
 	
 	for y in range(0, 4):
 		for x in range(0, 4):
