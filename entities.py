@@ -129,10 +129,27 @@ class Wall(Entity):
 			diff_y1 *= diff_y1
 			diff_x2 *= diff_x2
 			diff_y2 *= diff_y2
-			thickness_ul = int(thickscale/(diff_x1+diff_y1+1))
-			thickness_ur = int(thickscale/(diff_x2+diff_y1+1))
-			thickness_dl = int(thickscale/(diff_x1+diff_y2+1))
-			thickness_dr = int(thickscale/(diff_x2+diff_y2+1))
+			# we don't need to divide if we know it'll be zero, so if/else statements to save CPU load
+			
+			if diff_x1 + diff_y1 + 1 > thickscale:
+				thickness_ul = 0
+			else:
+				thickness_ul = int(thickscale/(diff_x1+diff_y1+1))
+				
+			if diff_x2 + diff_y1 + 1> thickscale:
+				thickness_ur = 0
+			else:
+				thickness_ur = int(thickscale/(diff_x2+diff_y1+1))
+				
+			if diff_x1 + diff_y2 + 1> thickscale:
+				thickness_dl = 0
+			else:
+				thickness_dl = int(thickscale/(diff_x1+diff_y2+1))
+				
+			if diff_x2 + diff_y2 + 1> thickscale:
+				thickness_dr = 0
+			else:
+				thickness_dr = int(thickscale/(diff_x2+diff_y2+1))
 			
 			max_thickness = 15
 			if thickness_ul > max_thickness:
