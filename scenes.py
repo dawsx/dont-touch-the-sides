@@ -210,50 +210,38 @@ class GameScene(Scene):
 				self.pausedelay = 15
 			self.pauseframes += 1
 		else:
-
+			greencheck = self.ship.switchCheck(self.switches)
 			self.reddoorsopen = True
 			self.bluedoorsopen = True
+			if greencheck[0]:
+				self.greendoorsopen = greencheck[1]
+			
 			for s in self.switches:
 				if s.color == red and s.flipped == False:
 					self.reddoorsopen = False
 				elif s.color == blue and s.flipped == False:
 					self.bluedoorsopen = False
-			
-			if self.reddoorsopen:
-				for d in self.doors:
-					if d.color == red:
-						d.opened = True
-			
-			if self.bluedoorsopen:
-				for d in self.doors:
-					if d.color == blue:
-						d.opened = True
-			
-			for d in self.doors:	
-				if d.color == yellow and self.framecount % 120 == 0 and self.framecount > 0:
-					d.opened = not d.opened
-			
-			greencheck = self.ship.switchCheck(self.switches)
-			if greencheck[0]:
-				self.greendoorsopen = greencheck[1]
-				
-			for s in self.switches:
-				if s.color == green:
+				elif s.color == green:
 					s.flipped = self.greendoorsopen
 				elif s.color == magenta:
 					s.flipped = not self.greendoorsopen
 			
 			for d in self.doors:
-				if d.color == green:
+				if d.color == red:
+					d.opened = self.reddoorsopen
+				elif d.color == blue:
+					d.opened = self.bluedoorsopen
+				elif d.color == green:
 					d.opened = self.greendoorsopen
 				elif d.color == magenta:
 					d.opened = not self.greendoorsopen
+				elif d.color == yellow and self.framecount % 120 == 0 and self.framecount > 0:
+					d.opened = not d.opened
 			
 			dead = self.ship.collide(self.walls + self.doors)
 			if dead:
 				self.manager.go_to(GameScene(self.levelno))
 			if escape and self.pausedelay <= 0:
-				#self.manager.go_to(TitleScene())
 				self.ispaused = True
 				self.pauseframes = 0
 
