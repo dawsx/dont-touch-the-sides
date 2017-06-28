@@ -19,6 +19,7 @@ magenta = (255, 0, 255)
 res_x = 800
 res_y = 576
 fps = 60
+tilesize = 8
 
 # create the list of levels
 from os import listdir

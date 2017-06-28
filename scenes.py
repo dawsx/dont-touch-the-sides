@@ -100,27 +100,32 @@ class GameScene(Scene):
 		self.framecount = 0
 		self.levelno = levelno
 		self.entities = pygame.sprite.Group()
-		self.walls = []
-		self.doors = []
-		self.switches = []
 		if "g" in levels[levelno]:
 			self.ghostlevel = True
 		else:
 			self.ghostlevel = False
-		self.pausecolors = [red, yellow, green, cyan, blue, magenta]
 		level_tiles = loadLevel(levels[levelno])
+		self.walls = []
+		self.wallindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
+		wcount = 0
+		self.doors = []
+		self.doorindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
+		dcount = 0
+		self.switches = []
+		self.switchindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
+		scount = 0
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
 				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
-					self.spawn_x = (x+1)*8
-					self.spawn_y = (y+1)*8
+					self.spawn_x = (x+1)*tilesize
+					self.spawn_y = (y+1)*tilesize
 				elif tile == "W":
 					if self.ghostlevel:
 						wcolor = black
 					else:
 						wcolor = white
-					w = Wall(x*8, y*8, 8, 8, wcolor)
+					w = Wall(x*tilesize, y*tilesize, tilesize, tilesize, wcolor)
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
 					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
@@ -138,46 +143,66 @@ class GameScene(Scene):
 					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
 						w.downright = True
 					self.walls.append(w)
+					self.wallindex[y][x] = wcount
+					wcount += 1
 					self.entities.add(w)
 				elif tile == "R":
-					d = Door(x*8, y*8, 8, 8, red)
+					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, red)
 					self.doors.append(d)
+					self.doorindex[y][x] = dcount
+					dcount += 1
 					self.entities.add(d)
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
-					s = Switch(x*8, y*8, 16, 16, red)
+					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
+					self.switchindex[y][x] = scount
+					scount += 1
 					self.entities.add(s)
 				elif tile == "B":
-					d = Door(x*8, y*8, 8, 8, blue)
+					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, blue)
 					self.doors.append(d)
+					self.doorindex[y][x] = dcount
+					dcount += 1
 					self.entities.add(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
-					s = Switch(x*8, y*8, 16, 16, blue)
+					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
+					self.switchindex[y][x] = scount
+					scount += 1
 					self.entities.add(s)
 				elif tile == "Y" or tile == "y":
-					d = Door(x*8, y*8, 8, 8, yellow)
+					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, yellow)
 					if tile == "y":
 						d.opened = True
 					self.doors.append(d)
+					self.doorindex[y][x] = dcount
+					dcount += 1
 					self.entities.add(d)
 				elif tile == "G":
-					d = Door(x*8, y*8, 8, 8, green)
+					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, green)
 					self.doors.append(d)
+					self.doorindex[y][x] = dcount
+					dcount += 1
 					self.entities.add(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
-					s = Switch(x*8, y*8, 16, 16, green)
+					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
+					self.switchindex[y][x] = scount
+					scount += 1
 					self.entities.add(s)
 				elif tile == "M":
-					d = Door(x*8, y*8, 8, 8, magenta)
+					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, magenta)
 					d.opened = True
 					self.doors.append(d)
+					self.doorindex[y][x] = dcount
+					dcount += 1
 					self.entities.add(d)
 				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
-					s = Switch(x*8, y*8, 16, 16, magenta)
+					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
+					self.switchindex[y][x] = scount
+					scount += 1
 					self.entities.add(s)
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
