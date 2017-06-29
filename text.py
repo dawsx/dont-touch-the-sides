@@ -1,5 +1,3 @@
-import pygame
-import math
 from globals import *
 import struct
 

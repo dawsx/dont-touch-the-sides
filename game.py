@@ -1,6 +1,3 @@
-import pygame
-import math
-import text
 from globals import *
 from entities import *
 from scenes import *

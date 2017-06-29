@@ -1,6 +1,3 @@
-import pygame
-import math
-import text
 from globals import *
 from entities import *
 
@@ -81,7 +78,8 @@ class TitleScene(Scene):
 
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
+		#left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_KP1, pygame.K_KP3, pygame.K_KP5, pygame.K_KP2, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		if enter:
 			self.manager.go_to(GameScene(0))
 		if escape and self.shipframes > 15:
@@ -121,11 +119,8 @@ class GameScene(Scene):
 					self.spawn_x = (x+2)*tilesize
 					self.spawn_y = (y+2)*tilesize
 				elif tile == "W":
-					if self.ghostlevel:
-						wcolor = black
-					else:
-						wcolor = white
-					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, wcolor)
+					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, white)
+					w.ghost = self.ghostlevel
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
 					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
@@ -213,7 +208,7 @@ class GameScene(Scene):
 	def render(self):
 		gameDisplay.fill(black)
 		for w in self.walls:
-			w.draw((self.ship.pos_x, self.ship.pos_y))
+			w.draw((self.ship.pos_x, self.ship.pos_y), self.ship.is_accel)
 		for d in self.doors:
 			d.draw()
 		for s in self.switches:
@@ -228,7 +223,8 @@ class GameScene(Scene):
 			
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
+		#left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_KP1, pygame.K_KP3, pygame.K_KP5, pygame.K_KP2, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
 		if self.ispaused:
 			if escape and self.pauseframes > 15:
 				self.ispaused = False

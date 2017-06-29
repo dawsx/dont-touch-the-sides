@@ -1,6 +1,3 @@
-import pygame
-import math
-import text
 from globals import *
 
 class Entity(pygame.sprite.Sprite):
@@ -22,6 +19,7 @@ class Ship(Entity):
 		self.trail = [[pos_x, pos_y]]
 		self.trail_len = 20
 		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
+		self.is_accel = False
 
 	def update(self, lkey, rkey, ukey, dkey, spacebar):
 		if not spacebar:
@@ -38,6 +36,10 @@ class Ship(Entity):
 			self.accel_x *= self.max_accel/scale
 			self.accel_y *= self.max_accel/scale
 			# print ('acceleration: ({0},{1}); velocity: ({2},{3})'.format(self.accel_x, self.accel_y, self.vel_x, self.vel_y))
+		if self.accel_x != 0 or self.accel_y != 0:
+			self.is_accel = True
+		else:
+			self.is_accel = False
 		self.vel_x += self.accel_x/self.mass
 		self.vel_y += self.accel_y/self.mass
 		if abs(self.vel_x) < 0.05:
@@ -88,6 +90,7 @@ class Wall(Entity):
 		self.wid = wid
 		self.hi = hi
 		self.color = color
+		self.ghost = False
 		
 		# defines the wall's hitbox. If the wall is on an edge in the x direction,
 		# increase its width to prevent clipping out of bounds (it shouldn't be 
@@ -109,10 +112,20 @@ class Wall(Entity):
 		self.downleft = False
 		self.downright = False
 	
-	def draw(self, ship_xy=[[]]):
+	def draw(self, ship_xy=[[]], is_accel=False):
 		# if the wall's color is set to white, it draws the walls with a regular white outline.
 		# otherwise, it draws the walls with a "ghost" effect
-		if self.color == white:
+		if not self.ghost:
+			if is_accel:
+				diff_x = ship_xy[0] - self.x
+				diff_y = ship_xy[1] - self.y
+				diff_x *= diff_x
+				diff_y *= diff_y
+				radscale = 5000
+				denom = (diff_x + diff_y + 1)/radscale
+				index = min(16, int(17/denom))
+				tile = black_cyan[index]
+				gameDisplay.blit(tile, [self.x, self.y])
 			thickness = 2
 			if self.leftline:
 				gameDisplay.fill(self.color, [self.x, self.y, thickness, self.hi])
