@@ -1,3 +1,7 @@
+import pygame
+import math
+from globals import *
+
 bayer4x4 = [[  0, 128,  32, 160], 
             [192,  64, 224,  96], 
 			[ 48, 176,  16, 144], 
@@ -14,14 +18,14 @@ bayer8x8 = [[  0, 192,  48, 240,  12, 204,  60, 252],
             [ 40, 232,  24, 216,  36, 228,  20, 212],
             [168, 104, 152,  88, 164, 100, 148,  84]]
 
-def dither(color, x, y, use8x8=True):
+def dither(color, x, y, use4x4 = True):
 	red = color[0]
 	green = color[1]
 	blue = color[2]
-	if use8x8:
-		thres = bayer8x8[y%8][x%8]
-	else:
+	if use4x4:
 		thres = bayer4x4[y%4][x%4]
+	else:
+		thres = bayer8x8[y%8][x%8]
 	
 	if red > thres:
 		red = 255
@@ -39,4 +43,21 @@ def dither(color, x, y, use8x8=True):
 		blue = 0
 		
 	return (red, green, blue)
+	
+def gradient(color1, color2, size = tilesize, pxscale = 2, use4x4 = True):
+	surflist = []
+	for i in range (0, 17):
+		temp = pygame.Surface((size, size))
+		for y in range(0, int(tilesize/pxscale)):
+			for x in range(0, int(tilesize/pxscale):
+				if i < bayer4x4[y][x]:
+					color = color1
+				else:
+					color = color2
+				temp.fill(color, [x*pxscale, y*pxscale, pxscale, pxscale])
+		
+		surflist.append(temp)
+		
+	return surflist
+
 	

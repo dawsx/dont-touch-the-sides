@@ -88,7 +88,18 @@ class Wall(Entity):
 		self.wid = wid
 		self.hi = hi
 		self.color = color
-		self.hitbox = pygame.Rect(x, y, wid, hi)
+		
+		# defines the wall's hitbox. If the wall is on an edge in the x direction,
+		# increase its width to prevent clipping out of bounds (it shouldn't be 
+		# possible to build up enough speed in the y direction to clip oob, but
+		# we'll see
+		
+		if self.x == tilesize:
+			self.hitbox = pygame.Rect(x-3*tilesize, y, wid+2*tilesize, hi)
+		elif self.x == res_x-3*tilesize:
+			self.hitbox = pygame.Rect(x, y, wid+2*tilesize, hi)
+		else:
+			self.hitbox = pygame.Rect(x, y, wid, hi)
 		self.leftline = False
 		self.rightline = False
 		self.upline = False
@@ -104,21 +115,21 @@ class Wall(Entity):
 		if self.color == white:
 			thickness = 2
 			if self.leftline:
-				gameDisplay.fill(self.color, pygame.Rect([self.x, self.y, thickness, self.hi]))
+				gameDisplay.fill(self.color, [self.x, self.y, thickness, self.hi])
 			if self.rightline:
-				gameDisplay.fill(self.color, pygame.Rect([self.x+self.wid-thickness, self.y, thickness, self.hi]))
+				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y, thickness, self.hi])
 			if self.upline:
-				gameDisplay.fill(self.color, pygame.Rect([self.x, self.y, self.wid, thickness]))
+				gameDisplay.fill(self.color, [self.x, self.y, self.wid, thickness])
 			if self.downline:
-				gameDisplay.fill(self.color, pygame.Rect([self.x, self.y+self.hi-thickness, self.wid, thickness]))
+				gameDisplay.fill(self.color, [self.x, self.y+self.hi-thickness, self.wid, thickness])
 			if self.upleft:
-				gameDisplay.fill(self.color, pygame.Rect([self.x, self.y, thickness, thickness]))
+				gameDisplay.fill(self.color, [self.x, self.y, thickness, thickness])
 			if self.upright:
-				gameDisplay.fill(self.color, pygame.Rect([self.x+self.wid-thickness, self.y, thickness, thickness]))
+				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y, thickness, thickness])
 			if self.downleft:
-				gameDisplay.fill(self.color, pygame.Rect([self.x, self.y+self.hi-thickness, thickness, thickness]))
+				gameDisplay.fill(self.color, [self.x, self.y+self.hi-thickness, thickness, thickness])
 			if self.downright:
-				gameDisplay.fill(self.color, pygame.Rect([self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness]))
+				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness])
 		else:
 			thickscale = 40000
 			diff_x1 = ship_xy[0] - self.x
@@ -162,25 +173,25 @@ class Wall(Entity):
 				thickness_dr = max_thickness
 			
 			if self.leftline:
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y, thickness_ul, self.hi/2]))
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y+self.hi/2, thickness_dl, self.hi/2]))
+				gameDisplay.fill(white, [self.x, self.y, thickness_ul, self.hi/2])
+				gameDisplay.fill(white, [self.x, self.y+self.hi/2, thickness_dl, self.hi/2])
 			if self.rightline:
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness_ur, self.y, thickness_ur, self.hi/2]))
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness_dr, self.y+self.hi/2, thickness_dr, self.hi/2]))
+				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, self.y, thickness_ur, self.hi/2])
+				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, self.y+self.hi/2, thickness_dr, self.hi/2])
 			if self.upline:
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y, self.wid/2, thickness_ul]))
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid/2, self.y, self.wid/2, thickness_ur]))
+				gameDisplay.fill(white, [self.x, self.y, self.wid/2, thickness_ul])
+				gameDisplay.fill(white, [self.x+self.wid/2, self.y, self.wid/2, thickness_ur])
 			if self.downline:
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y+self.hi-thickness_dl, self.wid/2, thickness_dl]))
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid/2, self.y+self.hi-thickness_dr, self.wid/2, thickness_dr]))
+				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, self.wid/2, thickness_dl])
+				gameDisplay.fill(white, [self.x+self.wid/2, self.y+self.hi-thickness_dr, self.wid/2, thickness_dr])
 			if self.upleft:
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y, thickness_ul, thickness_ul]))
+				gameDisplay.fill(white, [self.x, self.y, thickness_ul, thickness_ul])
 			if self.upright:
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness_ur, self.y, thickness_ur, thickness_ur]))
+				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, self.y, thickness_ur, thickness_ur])
 			if self.downleft:
-				gameDisplay.fill(white, pygame.Rect([self.x, self.y+self.hi-thickness_dl, thickness_dl, thickness_dl]))
+				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, thickness_dl, thickness_dl])
 			if self.downright:
-				gameDisplay.fill(white, pygame.Rect([self.x+self.wid-thickness_dr, self.y+self.hi-thickness_dr, thickness_dr, thickness_dr]))
+				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, self.y+self.hi-thickness_dr, thickness_dr, thickness_dr])
 
 		
 # doors work as follows:
@@ -198,7 +209,13 @@ class Door(Entity):
 		self.y = y
 		self.wid = wid
 		self.hi = hi
-		self.hitbox = pygame.Rect(x, y, wid, hi)
+		if self.x == tilesize:
+			self.hitbox = pygame.Rect(x-3*tilesize, y, wid+2*tilesize, hi)
+		elif self.x == res_x-3*tilesize:
+			self.hitbox = pygame.Rect(x, y, wid+2*tilesize, hi)
+		else:
+			self.hitbox = pygame.Rect(x, y, wid, hi)
+			
 		self.color = color
 		self.opened = False
 		self.startopened = False

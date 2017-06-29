@@ -20,6 +20,8 @@ res_x = 800
 res_y = 576
 fps = 60
 tilesize = 8
+res_x += 2*tilesize
+res_y += 2*tilesize
 
 # create the list of levels
 from os import listdir

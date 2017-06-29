@@ -118,14 +118,14 @@ class GameScene(Scene):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
 				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
-					self.spawn_x = (x+1)*tilesize
-					self.spawn_y = (y+1)*tilesize
+					self.spawn_x = (x+2)*tilesize
+					self.spawn_y = (y+2)*tilesize
 				elif tile == "W":
 					if self.ghostlevel:
 						wcolor = black
 					else:
 						wcolor = white
-					w = Wall(x*tilesize, y*tilesize, tilesize, tilesize, wcolor)
+					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, wcolor)
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
 					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
@@ -147,31 +147,31 @@ class GameScene(Scene):
 					wcount += 1
 					self.entities.add(w)
 				elif tile == "R":
-					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, red)
+					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, red)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
-					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, red)
+					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "B":
-					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, blue)
+					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, blue)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
-					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, blue)
+					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "Y" or tile == "y":
-					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, yellow)
+					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, yellow)
 					if tile == "y":
 						d.opened = True
 					self.doors.append(d)
@@ -179,26 +179,26 @@ class GameScene(Scene):
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "G":
-					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, green)
+					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, green)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
-					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, green)
+					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "M":
-					d = Door(x*tilesize, y*tilesize, tilesize, tilesize, magenta)
+					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, magenta)
 					d.opened = True
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
-					s = Switch(x*tilesize, y*tilesize, 2*tilesize, 2*tilesize, magenta)
+					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
@@ -228,7 +228,7 @@ class GameScene(Scene):
 			
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
 		if self.ispaused:
 			if escape and self.pauseframes > 15:
 				self.ispaused = False
@@ -276,6 +276,8 @@ class GameScene(Scene):
 			# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
 			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 10 and skiplevels == True):
 				self.manager.go_to(GameScene(self.levelno + 1))
+			if backspace and self.framecount > 10 and skiplevels == True:
+				self.manager.go_to(GameScene(self.levelno-1))
 			self.framecount += 1
 			if self.pausedelay > 0:
 				self.pausedelay -= 1
