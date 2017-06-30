@@ -91,6 +91,7 @@ class Wall(Entity):
 		self.hi = hi
 		self.color = color
 		self.ghost = False
+		self.opened = False
 		self.rayhit = False
 		
 		# defines the wall's hitbox. If the wall is on an edge in the x direction,
@@ -117,6 +118,10 @@ class Wall(Entity):
 		# if the wall's color is set to white, it draws the walls with a regular white outline.
 		# otherwise, it draws the walls with a "ghost" effect
 		if not self.ghost:
+			neighbors = False
+			# for ny in range (max(0, int(self.y/8)), min(int((res_y-2*tilesize)/8), int(self.y/8)+3)):
+				# for nx in range (max(0, int(self.x/8)), min(int((res_x-2*tilesize)/8), int(self.x/8)+3)):
+					# if self.
 			wallcolor = self.color
 			if self.rayhit and (ship.accel_x != 0 or ship.accel_y != 0):
 				diff_x = ship.pos_x - self.x
@@ -125,7 +130,7 @@ class Wall(Entity):
 				diff_y *= diff_y
 				radscale = 20000*math.sqrt(ship.accel_x*ship.accel_x+ship.accel_y*ship.accel_y)
 				dist = (diff_x + diff_y)
-				if dist < 2*radscale+radscale*dither.bayer8x8[int(self.y/2)%8][int(self.x/2)%8]:
+				if dist < 2*radscale:
 					wallcolor = cyan
 			thickness = 2
 			if self.leftline:
@@ -146,10 +151,10 @@ class Wall(Entity):
 				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness])
 		else:
 			thickscale = 40000
-			diff_x1 = ship_xy[0] - self.x
-			diff_y1 = ship_xy[1] - self.y
-			diff_x2 = ship_xy[0] - self.x - int(self.wid/2)
-			diff_y2 = ship_xy[1] - self.y - int(self.hi/2)
+			diff_x1 = ship.pos_x - self.x
+			diff_y1 = ship.pos_y - self.y
+			diff_x2 = ship.pos_x - self.x - int(self.wid/2)
+			diff_y2 = ship.pos_y - self.y - int(self.hi/2)
 			diff_x1 *= diff_x1
 			diff_y1 *= diff_y1
 			diff_x2 *= diff_x2

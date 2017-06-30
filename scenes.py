@@ -119,7 +119,7 @@ class GameScene(Scene):
 					self.spawn_x = (x+2)*tilesize
 					self.spawn_y = (y+2)*tilesize
 				elif tile == "W":
-					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, white)
+					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, red)
 					w.ghost = self.ghostlevel
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
@@ -351,7 +351,6 @@ def loadLevel(levelimg):
 	return level
 
 	
-# DOESN'T WORK, FIX LATER
 def rayTrace(scene):
 	for w in scene.walls:
 		w.rayhit = False
@@ -366,7 +365,7 @@ def rayTrace(scene):
 		x = ship_x
 		y = ship_y
 		hit = False
-		for r in range(0, res_x,  4):
+		for r in range(0, res_x,  8):
 			if not hit:
 				x = r * pcos[theta]+ship_x
 				y = r * psin[theta]+ship_y
@@ -378,6 +377,7 @@ def rayTrace(scene):
 				#elif wallindex[qy][qx] != -1 or doorindex[qy][qx] != -1 or switchindex[qx][qy] != -1:
 				elif wallindex[qy][qx] != -1:
 					scene.walls[wallindex[qy][qx]].rayhit = True
+					#print ("hit at {0}\t{1}\t{2}\t{3}\t{4}".format(qx,qy,pcos[theta],psin[theta], theta))
 					hit = True
 
 

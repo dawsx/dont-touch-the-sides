@@ -37,7 +37,7 @@ clock = pygame.time.Clock()
 # pre-calculate sin and cos values for ray-tracing
 psin = []
 pcos = []
-numrays = 120
+numrays = 360
 for x in range(0, numrays):
-	psin.append(math.sin(math.pi*2/numrays))
-	pcos.append(math.cos(math.pi*2/numrays))
+	psin.append(math.sin(x*math.pi*2/numrays))
+	pcos.append(math.cos(x*math.pi*2/numrays))
