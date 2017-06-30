@@ -1,20 +1,14 @@
 from globals import *
-
-bayer4x4 = [[  0, 128,  32, 160], 
-            [192,  64, 224,  96], 
-			[ 48, 176,  16, 144], 
-			[240, 112, 208,  80]]
-			
-			
-
-bayer8x8 = [[  0, 192,  48, 240,  12, 204,  60, 252],
-            [128,  64, 176, 112, 140,  76, 188, 124],
-            [ 32, 224,  16, 208,  44, 236,  28, 220],
-            [160,  96, 144,  80, 172, 108, 156,  92],
-            [  8, 200,  56, 248,   4, 196,  52, 244],
-            [136,  72, 184, 120, 132,  68, 180, 116],
-            [ 40, 232,  24, 216,  36, 228,  20, 212],
-            [168, 104, 152,  88, 164, 100, 148,  84]]
+	
+bayer8x8 = [[ 0, 48, 12, 60,  3, 51, 15, 63],
+            [32, 16, 44, 28, 35, 19, 47, 31],
+            [ 8, 56,  4, 52, 11, 59,  7, 55],
+            [40, 24, 36, 20, 43, 27, 39, 23],
+            [ 2, 50, 14, 62,  1, 49, 13, 61],
+            [34, 18, 46, 30, 33, 17, 45, 29],
+            [10, 58,  6, 54,  9, 57,  5, 53],
+            [42, 26, 38, 22, 41, 25, 37, 21]]
+		
 
 def dither(color, x, y, use4x4 = True):
 	red = color[0]
@@ -42,13 +36,15 @@ def dither(color, x, y, use4x4 = True):
 		
 	return (red, green, blue)
 	
-def gradient(color1, color2, size = 8, pxscale = 2, use4x4 = True):
+def gradient(color1, color2, depth = 0, size = 8):
 	surflist = []
-	for i in range (0, 17):
+	numtiles = 4**depth + 1
+	pxscale = 2**(3-depth)
+	for i in range (0, numtiles):
 		temp = pygame.Surface((size, size))
 		for y in range(0, int(size/pxscale)):
 			for x in range(0, int(size/pxscale)):
-				if i*16 < bayer4x4[y][x]+8:
+				if i < bayer8x8[(y*pxscale) % 8][(x*pxscale) % 8] + 0.5:
 					color = color1
 				else:
 					color = color2

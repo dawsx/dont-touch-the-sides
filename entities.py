@@ -91,6 +91,7 @@ class Wall(Entity):
 		self.hi = hi
 		self.color = color
 		self.ghost = False
+		self.rayhit = False
 		
 		# defines the wall's hitbox. If the wall is on an edge in the x direction,
 		# increase its width to prevent clipping out of bounds (it shouldn't be 
@@ -112,37 +113,37 @@ class Wall(Entity):
 		self.downleft = False
 		self.downright = False
 	
-	def draw(self, ship_xy=[[]], is_accel=False):
+	def draw(self, ship):
 		# if the wall's color is set to white, it draws the walls with a regular white outline.
 		# otherwise, it draws the walls with a "ghost" effect
 		if not self.ghost:
-			if is_accel:
-				diff_x = ship_xy[0] - self.x
-				diff_y = ship_xy[1] - self.y
+			wallcolor = self.color
+			if self.rayhit and (ship.accel_x != 0 or ship.accel_y != 0):
+				diff_x = ship.pos_x - self.x
+				diff_y = ship.pos_y - self.y
 				diff_x *= diff_x
 				diff_y *= diff_y
-				radscale = 5000
-				denom = (diff_x + diff_y + 1)/radscale
-				index = min(16, int(17/denom))
-				tile = black_cyan[index]
-				gameDisplay.blit(tile, [self.x, self.y])
+				radscale = 20000*math.sqrt(ship.accel_x*ship.accel_x+ship.accel_y*ship.accel_y)
+				dist = (diff_x + diff_y)
+				if dist < 2*radscale+radscale*dither.bayer8x8[int(self.y/2)%8][int(self.x/2)%8]:
+					wallcolor = cyan
 			thickness = 2
 			if self.leftline:
-				gameDisplay.fill(self.color, [self.x, self.y, thickness, self.hi])
+				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, self.hi])
 			if self.rightline:
-				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y, thickness, self.hi])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y, thickness, self.hi])
 			if self.upline:
-				gameDisplay.fill(self.color, [self.x, self.y, self.wid, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y, self.wid, thickness])
 			if self.downline:
-				gameDisplay.fill(self.color, [self.x, self.y+self.hi-thickness, self.wid, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness, self.wid, thickness])
 			if self.upleft:
-				gameDisplay.fill(self.color, [self.x, self.y, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, thickness])
 			if self.upright:
-				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y, thickness, thickness])
 			if self.downleft:
-				gameDisplay.fill(self.color, [self.x, self.y+self.hi-thickness, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness, thickness, thickness])
 			if self.downright:
-				gameDisplay.fill(self.color, [self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness])
 		else:
 			thickscale = 40000
 			diff_x1 = ship_xy[0] - self.x

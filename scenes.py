@@ -207,8 +207,9 @@ class GameScene(Scene):
 	
 	def render(self):
 		gameDisplay.fill(black)
+		rayTrace(self)
 		for w in self.walls:
-			w.draw((self.ship.pos_x, self.ship.pos_y), self.ship.is_accel)
+			w.draw(self.ship)
 		for d in self.doors:
 			d.draw()
 		for s in self.switches:
@@ -348,4 +349,36 @@ def loadLevel(levelimg):
 	# from pprint import pprint
 	# pprint (level)
 	return level
+
 	
+# DOESN'T WORK, FIX LATER
+def rayTrace(scene):
+	for w in scene.walls:
+		w.rayhit = False
+	wallindex = scene.wallindex
+	doors = scene.doors
+	doorindex = scene.doorindex
+	switches = scene.switchindex
+	switchindex = scene.switchindex
+	ship_x = scene.ship.pos_x
+	ship_y = scene.ship.pos_y
+	for theta in range (0, numrays):
+		x = ship_x
+		y = ship_y
+		hit = False
+		for r in range(0, res_x,  4):
+			if not hit:
+				x = r * pcos[theta]+ship_x
+				y = r * psin[theta]+ship_y
+				qx = int(x/8)-1
+				qy = int(y/8)-1
+				#print ("{0}\t{1}".format(qx,qy))
+				if qy < 0 or qy >= len(wallindex) or qx < 0 or qx >= len(wallindex[0]):
+					hit = True
+				#elif wallindex[qy][qx] != -1 or doorindex[qy][qx] != -1 or switchindex[qx][qy] != -1:
+				elif wallindex[qy][qx] != -1:
+					scene.walls[wallindex[qy][qx]].rayhit = True
+					hit = True
+
+
+			

@@ -34,11 +34,10 @@ levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir,
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 clock = pygame.time.Clock()
 
-black_cyan = dither.gradient(black, cyan)
-
-_sin = []
-_cos = []
+# pre-calculate sin and cos values for ray-tracing
+psin = []
+pcos = []
 numrays = 120
 for x in range(0, numrays):
-	_sin.append(math.sin(math.pi*2/numrays))
-	_cos.append(math.cos(math.pi*2/numrays))
+	psin.append(math.sin(math.pi*2/numrays))
+	pcos.append(math.cos(math.pi*2/numrays))
