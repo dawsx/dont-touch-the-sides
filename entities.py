@@ -19,6 +19,8 @@ class Ship(Entity):
 		self.trail = [[pos_x, pos_y]]
 		self.trail_len = 20
 		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
+		self.thrustbox_x = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size/2)
+		self.thrustbox_y = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size/2, self.ship_size)
 		self.is_accel = False
 
 	def update(self, lkey, rkey, ukey, dkey, spacebar):
@@ -36,10 +38,6 @@ class Ship(Entity):
 			self.accel_x *= self.max_accel/scale
 			self.accel_y *= self.max_accel/scale
 			# print ('acceleration: ({0},{1}); velocity: ({2},{3})'.format(self.accel_x, self.accel_y, self.vel_x, self.vel_y))
-		if self.accel_x != 0 or self.accel_y != 0:
-			self.is_accel = True
-		else:
-			self.is_accel = False
 		self.vel_x += self.accel_x/self.mass
 		self.vel_y += self.accel_y/self.mass
 		if abs(self.vel_x) < 0.05:
@@ -50,6 +48,8 @@ class Ship(Entity):
 		self.pos_x += self.vel_x
 		self.pos_y += self.vel_y
 		self.hitbox.center = (self.pos_x, self.pos_y)
+		self.thrustbox_x.center = (self.pos_x - self.accel_x*self.ship_size/2, self.pos_y)
+		self.thrustbox_y.center = (self.pos_x, self.pos_y - self.accel_y*self.ship_size/2)
 		self.trail.append([self.pos_x, self.pos_y])
 		if len(self.trail) > self.trail_len:
 			del self.trail[0]
@@ -57,15 +57,12 @@ class Ship(Entity):
 	def collide(self, walls):
 		for w in walls:
 			if w.hitbox.colliderect(self.hitbox):
-				if w.color == white or w.color == black:
+				if w.opened == False:
 					return True
-				else:
-					if w.opened == False:
-						return True
-	
+
 	def switchCheck(self, switches):
 		for s in switches:
-			if s.hitbox.colliderect(self.hitbox):
+			if s.hitbox.collidelist([self.hitbox, self.thrustbox_x, self.thrustbox_y]) != -1:
 				s.flipped = True
 				if s.color == green:
 					return [True, True]
@@ -92,7 +89,6 @@ class Wall(Entity):
 		self.color = color
 		self.ghost = False
 		self.opened = False
-		self.rayhit = False
 		
 		# defines the wall's hitbox. If the wall is on an edge in the x direction,
 		# increase its width to prevent clipping out of bounds (it shouldn't be 
@@ -118,20 +114,7 @@ class Wall(Entity):
 		# if the wall's color is set to white, it draws the walls with a regular white outline.
 		# otherwise, it draws the walls with a "ghost" effect
 		if not self.ghost:
-			neighbors = False
-			# for ny in range (max(0, int(self.y/8)), min(int((res_y-2*tilesize)/8), int(self.y/8)+3)):
-				# for nx in range (max(0, int(self.x/8)), min(int((res_x-2*tilesize)/8), int(self.x/8)+3)):
-					# if self.
 			wallcolor = self.color
-			if self.rayhit and (ship.accel_x != 0 or ship.accel_y != 0):
-				diff_x = ship.pos_x - self.x
-				diff_y = ship.pos_y - self.y
-				diff_x *= diff_x
-				diff_y *= diff_y
-				radscale = 20000*math.sqrt(ship.accel_x*ship.accel_x+ship.accel_y*ship.accel_y)
-				dist = (diff_x + diff_y)
-				if dist < 2*radscale:
-					wallcolor = cyan
 			thickness = 2
 			if self.leftline:
 				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, self.hi])

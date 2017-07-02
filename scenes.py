@@ -78,8 +78,7 @@ class TitleScene(Scene):
 
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		#left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_KP1, pygame.K_KP3, pygame.K_KP5, pygame.K_KP2, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		if enter:
 			self.manager.go_to(GameScene(0))
 		if escape and self.shipframes > 15:
@@ -119,7 +118,7 @@ class GameScene(Scene):
 					self.spawn_x = (x+2)*tilesize
 					self.spawn_y = (y+2)*tilesize
 				elif tile == "W":
-					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, red)
+					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, white)
 					w.ghost = self.ghostlevel
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
@@ -207,7 +206,6 @@ class GameScene(Scene):
 	
 	def render(self):
 		gameDisplay.fill(black)
-		rayTrace(self)
 		for w in self.walls:
 			w.draw(self.ship)
 		for d in self.doors:
@@ -224,8 +222,7 @@ class GameScene(Scene):
 			
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		#left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_KP1, pygame.K_KP3, pygame.K_KP5, pygame.K_KP2, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
+		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
 		if self.ispaused:
 			if escape and self.pauseframes > 15:
 				self.ispaused = False
@@ -274,7 +271,10 @@ class GameScene(Scene):
 			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 10 and skiplevels == True):
 				self.manager.go_to(GameScene(self.levelno + 1))
 			if backspace and self.framecount > 10 and skiplevels == True:
-				self.manager.go_to(GameScene(self.levelno-1))
+				if self.levelno == 0:
+					self.manager.go_to(TitleScene())
+				else:
+					self.manager.go_to(GameScene(self.levelno - 1))
 			self.framecount += 1
 			if self.pausedelay > 0:
 				self.pausedelay -= 1
@@ -351,34 +351,3 @@ def loadLevel(levelimg):
 	return level
 
 	
-def rayTrace(scene):
-	for w in scene.walls:
-		w.rayhit = False
-	wallindex = scene.wallindex
-	doors = scene.doors
-	doorindex = scene.doorindex
-	switches = scene.switchindex
-	switchindex = scene.switchindex
-	ship_x = scene.ship.pos_x
-	ship_y = scene.ship.pos_y
-	for theta in range (0, numrays):
-		x = ship_x
-		y = ship_y
-		hit = False
-		for r in range(0, res_x,  8):
-			if not hit:
-				x = r * pcos[theta]+ship_x
-				y = r * psin[theta]+ship_y
-				qx = int(x/8)-1
-				qy = int(y/8)-1
-				#print ("{0}\t{1}".format(qx,qy))
-				if qy < 0 or qy >= len(wallindex) or qx < 0 or qx >= len(wallindex[0]):
-					hit = True
-				#elif wallindex[qy][qx] != -1 or doorindex[qy][qx] != -1 or switchindex[qx][qy] != -1:
-				elif wallindex[qy][qx] != -1:
-					scene.walls[wallindex[qy][qx]].rayhit = True
-					#print ("hit at {0}\t{1}\t{2}\t{3}\t{4}".format(qx,qy,pcos[theta],psin[theta], theta))
-					hit = True
-
-
-			
