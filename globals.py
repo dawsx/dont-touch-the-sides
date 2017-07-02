@@ -1,7 +1,6 @@
 import pygame
 import math
 import text
-import dither
 
 # debug option, skips levels by pressing enter
 skiplevels = True
@@ -33,11 +32,3 @@ levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir,
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 clock = pygame.time.Clock()
-
-# pre-calculate sin and cos values for ray-tracing
-psin = []
-pcos = []
-numrays = 360
-for x in range(0, numrays):
-	psin.append(math.sin(x*math.pi*2/numrays))
-	pcos.append(math.cos(x*math.pi*2/numrays))
