@@ -39,14 +39,14 @@ class TitleScene(Scene):
 			spacebarcolor = red			
 		
 		y_line = 67
-		wid_str = text.sizeString("don't touch the sides",6)[0]
+		wid_str = text.sizeString("don't touch the sides",8)[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 6)
+		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 8)
 
 		
 		linespace = 48
 		
-		y_line = 320
+		y_line = 520
 		wid_str = text.sizeString("wasd or <_^> to move")[0]
 		x_start = (res_x - wid_str)/2
 
@@ -115,10 +115,10 @@ class GameScene(Scene):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
 				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
-					self.spawn_x = (x+2)*tilesize
-					self.spawn_y = (y+2)*tilesize
+					self.spawn_x = (x+1)*tilesize + level_left
+					self.spawn_y = (y+1)*tilesize + level_top
 				elif tile == "W":
-					w = Wall((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, white)
+					w = Wall(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, white)
 					w.ghost = self.ghostlevel
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
@@ -141,31 +141,31 @@ class GameScene(Scene):
 					wcount += 1
 					self.entities.add(w)
 				elif tile == "R":
-					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, red)
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, red)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
-					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, red)
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "B":
-					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, blue)
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, blue)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
-					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, blue)
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "Y" or tile == "y":
-					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, yellow)
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, yellow)
 					if tile == "y":
 						d.opened = True
 					self.doors.append(d)
@@ -173,26 +173,26 @@ class GameScene(Scene):
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "G":
-					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, green)
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
-					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, green)
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
 				elif tile == "M":
-					d = Door((x+1)*tilesize, (y+1)*tilesize, tilesize, tilesize, magenta)
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, magenta)
 					d.opened = True
 					self.doors.append(d)
 					self.doorindex[y][x] = dcount
 					dcount += 1
 					self.entities.add(d)
 				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
-					s = Switch((x+1)*tilesize, (y+1)*tilesize, 2*tilesize, 2*tilesize, magenta)
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
 					self.switchindex[y][x] = scount
@@ -289,21 +289,27 @@ class SceneManager(object):
 	
 def loadLevel(levelimg):
 	file = open(levelimg, 'rb')
+	file.seek(0x12)
+	bwidth = file.read(4)
+	bheight = file.read(4)
+	width = struct.unpack("<l", bwidth)[0]
+	height = struct.unpack("<l", bheight)[0]
+	pad = (-width)%4
+	
 	fileoffset = 0x436
-	width = 100
-	height = 72
 	pixellist = []
 	file.seek(fileoffset)
 	for x in range (0,height):
 		temp = file.read(width)
 		pixellist = [temp] + pixellist
+		file.seek(pad, 1)
 	
 	# tile constants for loading a level from bmp
 	spawntile = b'\xff'
 	bgtile = b'\x00'
 	walltile = b'\xa4'
-	bluedoortile = b'\xe8'
-	blueswitchtile = b'\x09'
+	bluedoortile = b'\xd2'
+	blueswitchtile = b'\xec'
 	reddoortile = b'\x4f'
 	redswitchtile = b'\xef'
 	yellowdoorclosedtile = b'\xfb'

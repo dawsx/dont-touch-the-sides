@@ -95,9 +95,9 @@ class Wall(Entity):
 		# possible to build up enough speed in the y direction to clip oob, but
 		# we'll see
 		
-		if self.x == tilesize:
+		if self.x == level_left:
 			self.hitbox = pygame.Rect(x-3*tilesize, y, wid+2*tilesize, hi)
-		elif self.x == res_x-3*tilesize:
+		elif self.x == level_right:
 			self.hitbox = pygame.Rect(x, y, wid+2*tilesize, hi)
 		else:
 			self.hitbox = pygame.Rect(x, y, wid, hi)
@@ -211,9 +211,9 @@ class Door(Entity):
 		self.y = y
 		self.wid = wid
 		self.hi = hi
-		if self.x == tilesize:
+		if self.x == level_left:
 			self.hitbox = pygame.Rect(x-3*tilesize, y, wid+2*tilesize, hi)
-		elif self.x == res_x-3*tilesize:
+		elif self.x == level_right:
 			self.hitbox = pygame.Rect(x, y, wid+2*tilesize, hi)
 		else:
 			self.hitbox = pygame.Rect(x, y, wid, hi)

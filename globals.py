@@ -1,6 +1,7 @@
 import pygame
 import math
 import text
+import struct
 
 # debug option, skips levels by pressing enter
 skiplevels = True
@@ -17,12 +18,15 @@ magenta = (255, 0, 255)
 
 
 # display constants
-res_x = 800
-res_y = 576
+res_x = 1024
+res_y = 768
 fps = 60
 tilesize = 8
-res_x += 2*tilesize
-res_y += 2*tilesize
+
+level_left = 1*tilesize
+level_right = 126*tilesize
+level_top = 11*tilesize
+level_bottom = 94*tilesize
 
 # create the list of levels
 from os import listdir
