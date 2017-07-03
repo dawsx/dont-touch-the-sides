@@ -255,12 +255,11 @@ class MovingWall(Entity):
 		self.color = color
 		self.dir = startdir
 		self.opened = False
+		
 			
 	def draw(self):
 		for p in self.pointlist:
-			x = p[0] * tilesize + level_left
-			y = p[1] * tilesize + level_top
-			pygame.draw.rect(gameDisplay, self.color, [x, y, self.size, self.size])
+			pygame.draw.rect(gameDisplay, self.color, p + [self.size, self.size])
 		
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):

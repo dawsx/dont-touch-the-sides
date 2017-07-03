@@ -346,7 +346,7 @@ def loadLevel(levelimg):
 
 def floodfill(image, char, x, y, pointlist):
 	if image[y][x] == char:
-		pointlist.append([x,y])
+		pointlist.append([x * tilesize + level_left, y * tilesize + level_top])
 		image[y][x] = " "
 		if x > 0:
 			pointlist = floodfill(image, char, x-1, y, pointlist)
