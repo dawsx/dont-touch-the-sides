@@ -31,7 +31,7 @@ level_bottom = 94*tilesize
 # create the list of levels
 from os import listdir
 from os.path import isfile, join
-leveldir = "./levels"
+leveldir = "./levels_test"
 levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))

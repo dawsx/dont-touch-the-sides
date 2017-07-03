@@ -103,14 +103,9 @@ class GameScene(Scene):
 			self.ghostlevel = False
 		level_tiles = loadLevel(levels[levelno])
 		self.walls = []
-		self.wallindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
-		wcount = 0
 		self.doors = []
-		self.doorindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
-		dcount = 0
 		self.switches = []
-		self.switchindex = [x[:] for x in [[-1] * len(level_tiles[0])] * len(level_tiles)]
-		scount = 0
+		self.movingwalls = []
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
@@ -137,64 +132,59 @@ class GameScene(Scene):
 					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
 						w.downright = True
 					self.walls.append(w)
-					self.wallindex[y][x] = wcount
-					wcount += 1
 					self.entities.add(w)
 				elif tile == "R":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, red)
 					self.doors.append(d)
-					self.doorindex[y][x] = dcount
-					dcount += 1
 					self.entities.add(d)
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
-					self.switchindex[y][x] = scount
-					scount += 1
 					self.entities.add(s)
 				elif tile == "B":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, blue)
 					self.doors.append(d)
-					self.doorindex[y][x] = dcount
-					dcount += 1
 					self.entities.add(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
-					self.switchindex[y][x] = scount
-					scount += 1
 					self.entities.add(s)
 				elif tile == "G":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
 					self.doors.append(d)
-					self.doorindex[y][x] = dcount
-					dcount += 1
 					self.entities.add(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
-					self.switchindex[y][x] = scount
-					scount += 1
 					self.entities.add(s)
 				elif tile == "M":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, magenta)
 					d.opened = True
 					self.doors.append(d)
-					self.doorindex[y][x] = dcount
-					dcount += 1
 					self.entities.add(d)
 				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
-					self.switchindex[y][x] = scount
-					scount += 1
 					self.entities.add(s)
+				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
+					mlist = floodfill(level_tiles, tile, x, y, [])
+					if tile == "C":
+						m = MovingWall(mlist, tilesize, cyan, 1)
+					elif tile == "c":
+						m = MovingWall(mlist, tilesize, cyan, -1)
+					elif tile == "Y":
+						m = MovingWall(mlist, tilesize, yellow, 1)
+					elif tile == "y":
+						m = MovingWall(mlist, tilesize, yellow, -1)
+					self.movingwalls.append(m)
+					self.entities.add(m)
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
 		self.greendoorsopen = False
+		print (len(self.movingwalls))
 	
 	def render(self):
 		gameDisplay.fill(black)
@@ -204,6 +194,8 @@ class GameScene(Scene):
 			d.draw()
 		for s in self.switches:
 			s.draw()
+		for m in self.movingwalls:
+			m.draw()
 		if not self.ispaused:
 			self.ship.draw(self.framecount)
 		else:
@@ -352,4 +344,16 @@ def loadLevel(levelimg):
 	# pprint (level)
 	return level
 
-	
+def floodfill(image, char, x, y, pointlist):
+	if image[y][x] == char:
+		pointlist.append([x,y])
+		image[y][x] = " "
+		if x > 0:
+			pointlist = floodfill(image, char, x-1, y, pointlist)
+		if x < len(image[0]) - 1:
+			pointlist = floodfill(image, char, x+1, y, pointlist)
+		if y > 0:
+			pointlist = floodfill(image, char, x, y-1, pointlist)
+		if y < len(image) - 1:
+			pointlist = floodfill(image, char, x, y+1, pointlist)
+	return pointlist
