@@ -258,7 +258,7 @@ class MovingWall(Entity):
 		self.color = color
 		self.opened = False
 		self.dir = startdir
-		if self.color = cyan:
+		if self.color == cyan:
 			self.orient = "ud"
 		else:
 			self.orient = "lr"
