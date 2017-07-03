@@ -164,14 +164,6 @@ class GameScene(Scene):
 					self.switchindex[y][x] = scount
 					scount += 1
 					self.entities.add(s)
-				elif tile == "Y" or tile == "y":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, yellow)
-					if tile == "y":
-						d.opened = True
-					self.doors.append(d)
-					self.doorindex[y][x] = dcount
-					dcount += 1
-					self.entities.add(d)
 				elif tile == "G":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
 					self.doors.append(d)
@@ -254,8 +246,6 @@ class GameScene(Scene):
 					d.opened = self.greendoorsopen
 				elif d.color == magenta:
 					d.opened = not self.greendoorsopen
-				elif d.color == yellow and self.framecount % 120 == 0 and self.framecount > 0:
-					d.opened = not d.opened
 			
 			dead = self.ship.collide(self.walls + self.doors)
 			if dead:
@@ -312,12 +302,14 @@ def loadLevel(levelimg):
 	blueswitchtile = b'\xec'
 	reddoortile = b'\x4f'
 	redswitchtile = b'\xef'
-	yellowdoorclosedtile = b'\xfb'
-	yellowdooropentile = b'\x08'
 	greendoortile = b'\x71'
 	greenswitchtile = b'\x3e'
 	magentadoortile = b'\xd5'
 	magentaswitchtile = b'\x07'
+	mwalltile_l = b'\xfb'
+	mwalltile_r = b'\x08'
+	mwalltile_u	= b'\xe8'
+	mwalltile_d = b'\x09'
 
 	level = []
 	for row in pixellist:
@@ -336,10 +328,6 @@ def loadLevel(levelimg):
 				str += ["B"]
 			elif col == blueswitchtile:
 				str += ["b"]
-			elif col == yellowdoorclosedtile:
-				str += ["Y"]
-			elif col == yellowdooropentile:
-				str += ["y"]
 			elif col == greendoortile:
 				str += ["G"]
 			elif col == greenswitchtile:
@@ -348,6 +336,14 @@ def loadLevel(levelimg):
 				str += ["M"]
 			elif col == magentaswitchtile:
 				str += ["m"]
+			elif col == mwalltile_l:
+				str += ["Y"]
+			elif col == mwalltile_r:
+				str += ["y"]
+			elif col == mwalltile_u:
+				str += ["C"]
+			elif col == mwalltile_d:
+				str += ["c"]
 			else:
 				str += [" "]
 		

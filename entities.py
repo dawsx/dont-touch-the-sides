@@ -199,7 +199,6 @@ class Wall(Entity):
 # doors work as follows:
 # - blue doors are tied to blue switches. flip all the blue switches to open all the blue doors
 # - red doors work the same as blue doors, except with red switches
-# - yellow doors alternate between open and closed on a timer. They can start open or closed, and alternate in turn
 # - green doors and magenta doors are paired. Hit a green switch to open all green doors and close all magenta doors. 
 #    hit a magenta switch to do the opposite. if you hit a green switch, it disables all green switches and enables 
 #    all magenta switches, and vice versa. magenta doors start open, and green doors start closed
@@ -247,6 +246,26 @@ class Switch(Entity):
 			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
 		switchtext = self.font.render('!', True, white)
 		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
+		
+class MovingWall(Entity):
+	def __init__(self, x, y, wid, hi, color, startdir):
+		Entity.__init__(self)
+		self.x = x
+		self.y = y
+		self.wid = wid
+		self.hi = hi
+		self.hitbox = pygame.Rect(x, y, wid, hi)
+		self.color = color
+		self.opened = False
+		self.dir = startdir
+		if self.color = cyan:
+			self.orient = "ud"
+		else:
+			self.orient = "lr"
+			
+	def draw(self):
+		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 2)
+		
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	if accel_x > 0:
