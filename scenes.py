@@ -169,17 +169,32 @@ class GameScene(Scene):
 					self.switches.append(s)
 					self.entities.add(s)
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
-					mlist = floodfill(level_tiles, tile, x, y, [])
-					if tile == "C":
-						m = MovingWall(mlist, tilesize, cyan, 1, self.mwallcount)
-					elif tile == "c":
-						m = MovingWall(mlist, tilesize, cyan, -1, self.mwallcount)
-					elif tile == "Y":
-						m = MovingWall(mlist, tilesize, yellow, 1, self.mwallcount)
-					elif tile == "y":
-						m = MovingWall(mlist, tilesize, yellow, -1, self.mwallcount)
+					tx = x
+					ty = y
+					while (level_tiles[ty][tx] == tile):
+						tx += 1
+						
+					while (level_tiles[ty][tx-1] == tile):
+						ty += 1
+						
+					if tile == "C" or tile == "c":
+						color = cyan
+					else:
+						color = yellow
+						
+					if tile == "c" or tile == "y":
+						dir = -1
+					else:
+						dir = 1
+						
+					m = MovingWall(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, color, dir, self.mwallcount)
 					self.movingwalls.append(m)
 					self.entities.add(m)
+					
+					for qy in range (y, ty):
+						for qx in range(x, tx):
+							level_tiles[qy][qx] = " "
+					
 					self.mwallcount += 1
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
@@ -192,12 +207,12 @@ class GameScene(Scene):
 		gameDisplay.fill(black)
 		for w in self.walls:
 			w.draw(self.ship)
-		for d in self.doors:
-			d.draw()
 		for s in self.switches:
 			s.draw()
 		for m in self.movingwalls:
 			m.draw()
+		for d in self.doors:
+			d.draw()
 		if not self.ispaused:
 			self.ship.draw(self.framecount)
 		else:
@@ -242,7 +257,9 @@ class GameScene(Scene):
 					d.opened = not self.greendoorsopen
 			
 			for m in self.movingwalls:
-				m.update(self.walls + self.doors, self.movingwalls)
+				m.collide(self.walls + self.doors, self.movingwalls)
+			for m in self.movingwalls:
+				m.move()
 			
 			dead = self.ship.collide(self.walls + self.doors, self.movingwalls)
 			if dead:

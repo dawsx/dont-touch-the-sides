@@ -28,7 +28,7 @@ level_right = 126*tilesize
 level_top = 11*tilesize
 level_bottom = 94*tilesize
 
-wallspeed = 4
+wallspeed = 2
 
 # create the list of levels
 from os import listdir
