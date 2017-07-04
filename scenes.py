@@ -106,6 +106,7 @@ class GameScene(Scene):
 		self.doors = []
 		self.switches = []
 		self.movingwalls = []
+		self.mwallcount = 0
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
@@ -170,15 +171,16 @@ class GameScene(Scene):
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
 					mlist = floodfill(level_tiles, tile, x, y, [])
 					if tile == "C":
-						m = MovingWall(mlist, tilesize, cyan, 1)
+						m = MovingWall(mlist, tilesize, cyan, 1, self.mwallcount)
 					elif tile == "c":
-						m = MovingWall(mlist, tilesize, cyan, -1)
+						m = MovingWall(mlist, tilesize, cyan, -1, self.mwallcount)
 					elif tile == "Y":
-						m = MovingWall(mlist, tilesize, yellow, 1)
+						m = MovingWall(mlist, tilesize, yellow, 1, self.mwallcount)
 					elif tile == "y":
-						m = MovingWall(mlist, tilesize, yellow, -1)
+						m = MovingWall(mlist, tilesize, yellow, -1, self.mwallcount)
 					self.movingwalls.append(m)
 					self.entities.add(m)
+					self.mwallcount += 1
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.entities.add(self.ship)
 		self.reddoorsopen = False
@@ -239,13 +241,15 @@ class GameScene(Scene):
 				elif d.color == magenta:
 					d.opened = not self.greendoorsopen
 			
-			dead = self.ship.collide(self.walls + self.doors)
+			for m in self.movingwalls:
+				m.update(self.walls + self.doors, self.movingwalls)
+			
+			dead = self.ship.collide(self.walls + self.doors, self.movingwalls)
 			if dead:
 				self.manager.go_to(GameScene(self.levelno))
 			if escape and self.pausedelay <= 0:
 				self.ispaused = True
 				self.pauseframes = 0
-
 			if self.framecount > 15:
 				self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
 				
@@ -340,8 +344,6 @@ def loadLevel(levelimg):
 				str += [" "]
 		
 		level.append(str)
-	# from pprint import pprint
-	# pprint (level)
 	return level
 
 def floodfill(image, char, x, y, pointlist):

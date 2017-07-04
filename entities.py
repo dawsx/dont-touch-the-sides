@@ -54,11 +54,14 @@ class Ship(Entity):
 		if len(self.trail) > self.trail_len:
 			del self.trail[0]
 	
-	def collide(self, walls):
+	def collide(self, walls, movingwalls):
 		for w in walls:
-			if w.hitbox.colliderect(self.hitbox):
+			if self.hitbox.colliderect(w.hitbox):
 				if w.opened == False:
 					return True
+		for m in movingwalls:
+			if self.hitbox.collidelist(m.hitbox) != -1:
+				return True
 
 	def switchCheck(self, switches):
 		for s in switches:
@@ -248,18 +251,82 @@ class Switch(Entity):
 		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
 		
 class MovingWall(Entity):
-	def __init__(self, pointlist, size, color, startdir):
+	def __init__(self, pointlist, size, color, startdir, id):
 		Entity.__init__(self)
 		self.pointlist = pointlist
 		self.size = size
 		self.color = color
 		self.dir = startdir
-		self.opened = False
+		self.id = id
+		self.hitbox = []
+		self.leadbox = []
+		self.trailbox = []
+		for p in self.pointlist:
+			self.hitbox.append(pygame.Rect(p + [size, size]))
+			if self.color == cyan:
+				self.leadbox.append(pygame.Rect(p[0], p[1] + wallspeed, size, size))
+				self.trailbox.append(pygame.Rect(p[0], p[1] - wallspeed, size, size))
+			else:
+				self.leadbox.append(pygame.Rect(p[0] + wallspeed, p[1], size, size))
+				self.trailbox.append(pygame.Rect(p[0] - wallspeed, p[1], size, size))
 		
 			
 	def draw(self):
 		for p in self.pointlist:
 			pygame.draw.rect(gameDisplay, self.color, p + [self.size, self.size])
+			
+	def update(self, walls, movingwalls):
+		maincollide = False
+		leadcollide = False
+		trailcollide = False
+		for w in walls:
+			if w.opened == False and w.hitbox.collidelist(self.hitbox) != -1:
+				maincollide = True
+			if w.opened == False and w.hitbox.collidelist(self.leadbox) != -1:
+				leadcollide = True
+			if w.opened == False and w.hitbox.collidelist(self.trailbox) != -1:
+				trailcollide = True
+		for m in movingwalls:
+			if m.id != self.id:
+				for h in m.hitbox:
+					if h.collidelist(self.hitbox) != -1:
+						maincollide = True
+					if h.collidelist(self.leadbox) != -1:
+						leadcollide = True
+					if h.collidelist(self.trailbox) != -1:
+						trailcollide = True
+		if maincollide:
+			self.dir = 0
+		if not maincollide and leadcollide and not trailcollide:
+			self.dir = -1
+		if not maincollide and not leadcollide and trailcollide:
+			self.dir = 1
+		if not maincollide and leadcollide and trailcollide:
+			self.dir = 0
+			
+		for p in self.pointlist:
+			if self.color == cyan:
+				p[1] += wallspeed*self.dir
+			else:
+				p[0] += wallspeed*self.dir
+		for h in self.hitbox:
+			if self.color == cyan:
+				h.centery += wallspeed*self.dir
+			else:
+				h.centerx += wallspeed*self.dir
+		for h in self.leadbox:
+			if self.color == cyan:
+				h.centery += wallspeed*self.dir
+			else:
+				h.centerx += wallspeed*self.dir
+		for h in self.trailbox:
+			if self.color == cyan:
+				h.centery += wallspeed*self.dir
+			else:
+				h.centerx += wallspeed*self.dir
+		
+	def switchcheck(self, switches):
+		pass
 		
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):

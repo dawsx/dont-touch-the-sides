@@ -28,6 +28,8 @@ level_right = 126*tilesize
 level_top = 11*tilesize
 level_bottom = 94*tilesize
 
+wallspeed = 4
+
 # create the list of levels
 from os import listdir
 from os.path import isfile, join
