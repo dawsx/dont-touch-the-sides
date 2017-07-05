@@ -270,20 +270,15 @@ class MovingWall(Entity):
 			self.trailbox = pygame.Rect(x, y-wallspeed, wid, hi)
 		else:
 			self.trailbox = pygame.Rect(x-wallspeed, y, wid, hi)
+		self.walls = []
+		self.movingwalls = []
 		
 	def draw(self):
 		pygame.draw.rect(gameDisplay, black, [self.x, self.y, self.wid, self.hi])
 		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 2)
-			
-	def collide(self, walls, movingwalls):
-		maincollide = False
-		leadcollide = False
-		trailcollide = False
+		
+	def initcollide(self, walls, movingwalls):
 		for w in walls:
-			if maincollide:
-				break
-			elif leadcollide and trailcollide:
-				break
 			skip = False
 			if self.color == cyan:
 				if w.x + w.wid <= self.x or w.x >= self.x + self.wid:
@@ -291,7 +286,32 @@ class MovingWall(Entity):
 			else:
 				if w.y + w.hi <= self.y or w.y >= self.y + self.hi:
 					skip = True
-			if w.opened == False and skip == False:
+			if not skip:
+				self.walls.append(w)
+				
+		for m in movingwalls:
+			if m.id != self.id:
+				skip = False
+				if m.color == self.color:
+					if self.color == cyan:
+						if m.x + m.wid <= self.x or m.x >= self.x + self.wid:
+							skip = True
+					else:
+						if m.y + m.hi <= self.y or m.y >= self.y + self.hi:
+							skip = True
+				if not skip:
+					self.movingwalls.append(m)
+
+	def collide(self):
+		maincollide = False
+		leadcollide = False
+		trailcollide = False
+		for w in self.walls:
+			if maincollide:
+				break
+			elif leadcollide and trailcollide:
+				break
+			if w.opened == False:
 				collides = w.hitbox.collidelistall([self.hitbox, self.leadbox, self.trailbox])
 				for c in collides:
 					if c == 0:
@@ -300,26 +320,17 @@ class MovingWall(Entity):
 						leadcollide = True
 					elif c == 2:
 						trailcollide = True
-		for m in movingwalls:
+		for m in self.movingwalls:
 			if maincollide:
 				break
 			elif leadcollide and trailcollide:
 				break
-			if m.id != self.id:
-				skip = False
-				if self.color == cyan:
-					if m.x + m.wid <= self.x or m.x >= self.x + self.wid:
-						skip = True
-				else:
-					if m.y + m.hi <= self.y or m.y >= self.y + self.hi:
-						skip = True
-				if not skip:
-					collides = m.hitbox.collidelistall([self.leadbox, self.trailbox])
-					for c in collides:
-						if c == 0:
-							leadcollide = True
-						elif c == 1:
-							trailcollide = True
+			collides = m.hitbox.collidelistall([self.leadbox, self.trailbox])
+			for c in collides:
+				if c == 0:
+					leadcollide = True
+				elif c == 1:
+					trailcollide = True
 		if maincollide:
 			if self.dir != 0:
 				self.prevdir = self.dir

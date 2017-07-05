@@ -201,6 +201,8 @@ class GameScene(Scene):
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
 		self.greendoorsopen = False
+		for m in self.movingwalls:
+			m.initcollide(self.walls + self.doors, self.movingwalls)
 		print (len(self.movingwalls))
 	
 	def render(self):
@@ -257,7 +259,7 @@ class GameScene(Scene):
 					d.opened = not self.greendoorsopen
 			
 			for m in self.movingwalls:
-				m.collide(self.walls + self.doors, self.movingwalls)
+				m.collide()
 			for m in self.movingwalls:
 				m.move()
 			
