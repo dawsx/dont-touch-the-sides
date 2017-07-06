@@ -1,5 +1,4 @@
 from globals import *
-import struct
 
 file = open('gfx\charmap.bmp', 'rb')
 fileoffset = 0x436

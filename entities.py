@@ -274,9 +274,15 @@ class MovingWall(Entity):
 		self.movingwalls = []
 		
 	def draw(self):
-		pygame.draw.rect(gameDisplay, black, [self.x, self.y, self.wid, self.hi])
-		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 2)
-		
+		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+		pygame.draw.rect(gameDisplay, black, [self.x+2, self.y+2, self.wid-4, self.hi-4])
+	# Since moving walls move only along the x- or y- axes, anything outside their respective rows
+	# and columns can be safely ignored, with the exception of perpendicular-moving walls. This
+	# function gives a moving wall object a list of walls, doors, and moving walls that it may
+	# collide with, so when collision is checked the moving wall only checks these lists.
+	# 
+	# With this function, there's no discernable CPU difference between a level with 4 moving walls
+	# and a level with 62
 	def initcollide(self, walls, movingwalls):
 		for w in walls:
 			skip = False
@@ -361,9 +367,16 @@ class MovingWall(Entity):
 				self.leadbox.x += self.dir*wallspeed
 				self.trailbox.x += self.dir*wallspeed
 		
-	def switchcheck(self, switches):
-		pass
-		
+	def switchCheck(self, switches):
+		for s in switches:
+			if s.hitbox.colliderect(self.hitbox):
+				s.flipped = True
+				if s.color == green:
+					return [True, True]
+				elif s.color == magenta:
+					return [True, False]
+
+		return [False, False]
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	if accel_x > 0:

@@ -232,6 +232,11 @@ class GameScene(Scene):
 				self.pausedelay = 15
 			self.pauseframes += 1
 		else:
+			for m in self.movingwalls:
+				greencheck = m.switchCheck(self.switches)
+				if greencheck[0]:
+					self.greendoorsopen = greencheck[1]
+					
 			greencheck = self.ship.switchCheck(self.switches)
 			self.reddoorsopen = True
 			self.bluedoorsopen = True
@@ -364,17 +369,3 @@ def loadLevel(levelimg):
 		
 		level.append(str)
 	return level
-
-def floodfill(image, char, x, y, pointlist):
-	if image[y][x] == char:
-		pointlist.append([x * tilesize + level_left, y * tilesize + level_top])
-		image[y][x] = " "
-		if x > 0:
-			pointlist = floodfill(image, char, x-1, y, pointlist)
-		if x < len(image[0]) - 1:
-			pointlist = floodfill(image, char, x+1, y, pointlist)
-		if y > 0:
-			pointlist = floodfill(image, char, x, y-1, pointlist)
-		if y < len(image) - 1:
-			pointlist = floodfill(image, char, x, y+1, pointlist)
-	return pointlist

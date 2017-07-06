@@ -1,7 +1,7 @@
 import pygame
 import math
-import text
 import struct
+import text
 
 # debug option, skips levels by pressing enter
 skiplevels = True
