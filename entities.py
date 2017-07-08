@@ -1,12 +1,7 @@
 from globals import *
 
-class Entity(pygame.sprite.Sprite):
-	def __init__(self):
-		pygame.sprite.Sprite.__init__(self)
-		
-class Ship(Entity):
+class Ship(object):
 	def __init__(self, pos_x, pos_y):
-		Entity.__init__(self)
 		self.ship_size = 16
 		self.pos_x = pos_x
 		self.pos_y = pos_y
@@ -31,10 +26,8 @@ class Ship(Entity):
 			self.accel_x = -self.vel_x
 			self.accel_y = -self.vel_y
 			scale = self.max_accel
-			if abs(self.accel_x) > self.max_accel:
-				scale = abs(self.accel_x)
-			elif abs(self.accel_y) > self.max_accel:
-				scale = abs(self.accel_y)
+			if abs(self.accel_x) > self.max_accel or abs(self.accel_y) > self.max_accel:
+				scale = max(abs(self.accel_x),abs(self.accel_y))
 			self.accel_x *= self.max_accel/scale
 			self.accel_y *= self.max_accel/scale
 			# print ('acceleration: ({0},{1}); velocity: ({2},{3})'.format(self.accel_x, self.accel_y, self.vel_x, self.vel_y))
@@ -82,9 +75,8 @@ class Ship(Entity):
 		else:
 			drawSpawnShip(self.pos_x, self.pos_y, self.ship_size, framecount)
 
-class Wall(Entity):
+class Wall(object):
 	def __init__(self, x, y, wid, hi, color):
-		Entity.__init__(self)
 		self.x = x
 		self.y = y
 		self.wid = wid
@@ -206,9 +198,8 @@ class Wall(Entity):
 #    hit a magenta switch to do the opposite. if you hit a green switch, it disables all green switches and enables 
 #    all magenta switches, and vice versa. magenta doors start open, and green doors start closed
 
-class Door(Entity):
+class Door(object):
 	def __init__(self, x, y, wid, hi, color):
-		Entity.__init__(self)
 		self.x = x
 		self.y = y
 		self.wid = wid
@@ -230,9 +221,8 @@ class Door(Entity):
 		else:
 			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
 	
-class Switch(Entity):
+class Switch(object):
 	def __init__(self, x, y, wid, hi, color):
-		Entity.__init__(self)
 		self.x = x
 		self.y = y
 		self.wid = wid
@@ -250,9 +240,8 @@ class Switch(Entity):
 		switchtext = self.font.render('!', True, white)
 		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
 		
-class MovingWall(Entity):
+class MovingWall(object):
 	def __init__(self, x, y, wid, hi, color, startdir, id):
-		Entity.__init__(self)
 		self.x = x
 		self.y = y
 		self.wid = wid
@@ -369,7 +358,25 @@ class MovingWall(Entity):
 		
 	def switchCheck(self, switches):
 		for s in switches:
-			if s.hitbox.colliderect(self.hitbox):
+			maincollide = False
+			leadcollide = False
+			trailcollide = False
+			collides = s.hitbox.collidelistall([self.hitbox, self.leadbox, self.trailbox])
+			for c in collides:
+				if c == 0:
+					maincollide = True
+				elif c == 1:
+					leadcollide = True
+				elif c == 2:
+					trailcollide = True
+			
+			if maincollide and leadcollide and not trailcollide and self.dir == 1:
+				flip = True
+			elif maincollide and trailcollide and not leadcollide and self.dir == -1:
+				flip = True
+			else:
+				flip = False
+			if flip:
 				s.flipped = True
 				if s.color == green:
 					return [True, True]

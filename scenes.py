@@ -17,9 +17,7 @@ class TitleScene(Scene):
 		super(TitleScene, self).__init__()
 		self.framecount = 0
 		self.shipframes = 0
-		self.entities = pygame.sprite.Group()
 		self.ship = Ship(res_x/2, res_y/2)
-		self.entities.add(self.ship)
 	
 	def render(self):
 		gameDisplay.fill(black)
@@ -96,7 +94,6 @@ class GameScene(Scene):
 		self.pausedelay = 0
 		self.framecount = 0
 		self.levelno = levelno
-		self.entities = pygame.sprite.Group()
 		if "g" in levels[levelno]:
 			self.ghostlevel = True
 		else:
@@ -133,41 +130,32 @@ class GameScene(Scene):
 					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
 						w.downright = True
 					self.walls.append(w)
-					self.entities.add(w)
 				elif tile == "R":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, red)
 					self.doors.append(d)
-					self.entities.add(d)
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
-					self.entities.add(s)
 				elif tile == "B":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, blue)
 					self.doors.append(d)
-					self.entities.add(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
-					self.entities.add(s)
 				elif tile == "G":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
 					self.doors.append(d)
-					self.entities.add(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
-					self.entities.add(s)
 				elif tile == "M":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, magenta)
 					d.opened = True
 					self.doors.append(d)
-					self.entities.add(d)
 				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
-					self.entities.add(s)
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
 					tx = x
 					ty = y
@@ -189,7 +177,6 @@ class GameScene(Scene):
 						
 					m = MovingWall(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, color, dir, self.mwallcount)
 					self.movingwalls.append(m)
-					self.entities.add(m)
 					
 					for qy in range (y, ty):
 						for qx in range(x, tx):
@@ -197,7 +184,6 @@ class GameScene(Scene):
 					
 					self.mwallcount += 1
 		self.ship = Ship(self.spawn_x, self.spawn_y)
-		self.entities.add(self.ship)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
 		self.greendoorsopen = False
