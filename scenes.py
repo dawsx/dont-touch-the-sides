@@ -94,16 +94,17 @@ class GameScene(Scene):
 		self.pausedelay = 0
 		self.framecount = 0
 		self.levelno = levelno
-		if "g" in levels[levelno]:
+		level_tiles = loadLevel(levels[levelno])
+		if level_tiles[0][0] == "S":
 			self.ghostlevel = True
+			level_tiles[0][0] = level_tiles[0][1]
 		else:
 			self.ghostlevel = False
-		level_tiles = loadLevel(levels[levelno])
 		self.walls = []
 		self.doors = []
 		self.switches = []
-		self.movingwalls = []
-		self.mwallcount = 0
+		self.movers = []
+		self.movercount = 0
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
@@ -136,18 +137,30 @@ class GameScene(Scene):
 				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, red)
 					self.switches.append(s)
+					level_tiles[y][x] = ' '
+					level_tiles[y+1][x] = ' '
+					level_tiles[y][x+1] = ' '
+					level_tiles[y+1][x+1] = ' '
 				elif tile == "B":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, blue)
 					self.doors.append(d)
 				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, blue)
 					self.switches.append(s)
+					level_tiles[y][x] = ' '
+					level_tiles[y+1][x] = ' '
+					level_tiles[y][x+1] = ' '
+					level_tiles[y+1][x+1] = ' '
 				elif tile == "G":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
 					self.doors.append(d)
 				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, green)
 					self.switches.append(s)
+					level_tiles[y][x] = ' '
+					level_tiles[y+1][x] = ' '
+					level_tiles[y][x+1] = ' '
+					level_tiles[y+1][x+1] = ' '
 				elif tile == "M":
 					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, magenta)
 					d.opened = True
@@ -156,6 +169,10 @@ class GameScene(Scene):
 					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, magenta)
 					s.flipped = True
 					self.switches.append(s)
+					level_tiles[y][x] = ' '
+					level_tiles[y+1][x] = ' '
+					level_tiles[y][x+1] = ' '
+					level_tiles[y+1][x+1] = ' '
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
 					tx = x
 					ty = y
@@ -175,21 +192,21 @@ class GameScene(Scene):
 					else:
 						dir = 1
 						
-					m = MovingWall(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, color, dir, self.mwallcount)
-					self.movingwalls.append(m)
+					m = Mover(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, color, dir, self.movercount)
+					self.movers.append(m)
 					
 					for qy in range (y, ty):
 						for qx in range(x, tx):
 							level_tiles[qy][qx] = " "
 					
-					self.mwallcount += 1
+					self.movercount += 1
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
 		self.greendoorsopen = False
-		for m in self.movingwalls:
-			m.initcollide(self.walls + self.doors, self.movingwalls)
-		print (len(self.movingwalls))
+		for m in self.movers:
+			m.initcollide(self.walls + self.doors, self.movers)
+		print (len(self.movers))
 	
 	def render(self):
 		gameDisplay.fill(black)
@@ -197,7 +214,7 @@ class GameScene(Scene):
 			w.draw(self.ship)
 		for s in self.switches:
 			s.draw()
-		for m in self.movingwalls:
+		for m in self.movers:
 			m.draw()
 		for d in self.doors:
 			d.draw()
@@ -218,7 +235,7 @@ class GameScene(Scene):
 				self.pausedelay = 15
 			self.pauseframes += 1
 		else:
-			for m in self.movingwalls:
+			for m in self.movers:
 				greencheck = m.switchCheck(self.switches)
 				if greencheck[0]:
 					self.greendoorsopen = greencheck[1]
@@ -249,12 +266,12 @@ class GameScene(Scene):
 				elif d.color == magenta:
 					d.opened = not self.greendoorsopen
 			
-			for m in self.movingwalls:
+			for m in self.movers:
 				m.collide()
-			for m in self.movingwalls:
+			for m in self.movers:
 				m.move()
 			
-			dead = self.ship.collide(self.walls + self.doors, self.movingwalls)
+			dead = self.ship.collide(self.walls + self.doors, self.movers)
 			if dead:
 				self.manager.go_to(GameScene(self.levelno))
 			if escape and self.pausedelay <= 0:

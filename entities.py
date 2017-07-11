@@ -47,12 +47,12 @@ class Ship(object):
 		if len(self.trail) > self.trail_len:
 			del self.trail[0]
 	
-	def collide(self, walls, movingwalls):
+	def collide(self, walls, movers):
 		for w in walls:
 			if self.hitbox.colliderect(w.hitbox):
 				if w.opened == False:
 					return True
-		for m in movingwalls:
+		for m in movers:
 			if self.hitbox.colliderect(m.hitbox):
 				return True
 
@@ -240,7 +240,7 @@ class Switch(object):
 		switchtext = self.font.render('!', True, white)
 		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
 		
-class MovingWall(object):
+class Mover(object):
 	def __init__(self, x, y, wid, hi, color, startdir, id):
 		self.x = x
 		self.y = y
@@ -250,6 +250,13 @@ class MovingWall(object):
 		self.dir = startdir
 		self.prevdir = self.dir
 		self.id = id
+		
+		# each mover has 3 hitboxes. A main hitbox that is exactly the shape and size of the wall;
+		# a leading hitbox the same shape and size, but shifted ahead by the wall speed; and a trailing 
+		# hitbox the same shape and size, but shifted behind
+		# by checking how each hitbox overlaps when colliding with walls and switches we can determine
+		# whether the mover should change direction, stop, hit a switch, etc. very quickly without
+		# worrying about counting frames or anything like that.
 		self.hitbox = pygame.Rect(x, y, wid, hi)
 		if self.color == cyan:
 			self.leadbox = pygame.Rect(x, y+wallspeed, wid, hi)
@@ -260,19 +267,19 @@ class MovingWall(object):
 		else:
 			self.trailbox = pygame.Rect(x-wallspeed, y, wid, hi)
 		self.walls = []
-		self.movingwalls = []
+		self.movers = []
 		
 	def draw(self):
 		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
 		pygame.draw.rect(gameDisplay, black, [self.x+2, self.y+2, self.wid-4, self.hi-4])
-	# Since moving walls move only along the x- or y- axes, anything outside their respective rows
-	# and columns can be safely ignored, with the exception of perpendicular-moving walls. This
-	# function gives a moving wall object a list of walls, doors, and moving walls that it may
-	# collide with, so when collision is checked the moving wall only checks these lists.
+	# Since movers move only along the x- or y- axes, anything outside their respective rows
+	# and columns can be safely ignored, with the exception of perpendicular-movers. This
+	# function gives a mover object a list of walls, doors, and movers that it may
+	# collide with, so when collision is checked the mover only checks these lists.
 	# 
-	# With this function, there's no discernable CPU difference between a level with 4 moving walls
-	# and a level with 62
-	def initcollide(self, walls, movingwalls):
+	# With this function, there's no discernable CPU difference between a level with 4 movers
+	# and a level with 60
+	def initcollide(self, walls, movers):
 		for w in walls:
 			skip = False
 			if self.color == cyan:
@@ -284,7 +291,7 @@ class MovingWall(object):
 			if not skip:
 				self.walls.append(w)
 				
-		for m in movingwalls:
+		for m in movers:
 			if m.id != self.id:
 				skip = False
 				if m.color == self.color:
@@ -295,7 +302,7 @@ class MovingWall(object):
 						if m.y + m.hi <= self.y or m.y >= self.y + self.hi:
 							skip = True
 				if not skip:
-					self.movingwalls.append(m)
+					self.movers.append(m)
 
 	def collide(self):
 		maincollide = False
@@ -315,7 +322,7 @@ class MovingWall(object):
 						leadcollide = True
 					elif c == 2:
 						trailcollide = True
-		for m in self.movingwalls:
+		for m in self.movers:
 			if maincollide:
 				break
 			elif leadcollide and trailcollide:
@@ -369,7 +376,9 @@ class MovingWall(object):
 					leadcollide = True
 				elif c == 2:
 					trailcollide = True
-			
+			# the 3 hitboxes overlap, so this checks for a specific overlap pattern that can only hit the switch
+			# on one frame. prevents double-hitting switches, most evident in levels where the ship can hit a green
+			# switch and a mover can hit a magenta switch
 			if maincollide and leadcollide and not trailcollide and self.dir == 1:
 				flip = True
 			elif maincollide and trailcollide and not leadcollide and self.dir == -1:
