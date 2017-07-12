@@ -16,6 +16,7 @@ cyan = (0, 255, 255)
 blue = (0, 0, 255)
 magenta = (255, 0, 255)
 
+colors = {"R": red, "r": red, "B": blue, "b": blue, "G": green, "g": green, "M": magenta, "m": magenta, "C": cyan, "c": cyan, "Y": yellow, "y": yellow}
 
 # display constants
 res_x = 1024

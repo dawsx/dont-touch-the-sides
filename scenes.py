@@ -131,43 +131,15 @@ class GameScene(Scene):
 					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
 						w.downright = True
 					self.walls.append(w)
-				elif tile == "R":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, red)
+				elif tile == "R" or tile == "B" or tile == "G" or tile == "M":
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, colors[tile])
+					if tile == "M":
+						d.opened = True
 					self.doors.append(d)
-				elif tile == "r" and level_tiles[y+1][x] == "r" and level_tiles[y][x+1] == "r":
-					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, red)
-					self.switches.append(s)
-					level_tiles[y][x] = ' '
-					level_tiles[y+1][x] = ' '
-					level_tiles[y][x+1] = ' '
-					level_tiles[y+1][x+1] = ' '
-				elif tile == "B":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, blue)
-					self.doors.append(d)
-				elif tile == "b" and level_tiles[y+1][x] == "b" and level_tiles[y][x+1] == "b":
-					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, blue)
-					self.switches.append(s)
-					level_tiles[y][x] = ' '
-					level_tiles[y+1][x] = ' '
-					level_tiles[y][x+1] = ' '
-					level_tiles[y+1][x+1] = ' '
-				elif tile == "G":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, green)
-					self.doors.append(d)
-				elif tile == "g" and level_tiles[y+1][x] == "g" and level_tiles[y][x+1] == "g":
-					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, green)
-					self.switches.append(s)
-					level_tiles[y][x] = ' '
-					level_tiles[y+1][x] = ' '
-					level_tiles[y][x+1] = ' '
-					level_tiles[y+1][x+1] = ' '
-				elif tile == "M":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, magenta)
-					d.opened = True
-					self.doors.append(d)
-				elif tile == "m" and level_tiles[y+1][x] == "m" and level_tiles[y][x+1] == "m":
-					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, magenta)
-					s.flipped = True
+				elif tile == "r" or tile == "b" or tile == "g" or tile == "m":
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, colors[tile])
+					if tile == "m":
+						s.flipped = True
 					self.switches.append(s)
 					level_tiles[y][x] = ' '
 					level_tiles[y+1][x] = ' '
@@ -182,17 +154,12 @@ class GameScene(Scene):
 					while (level_tiles[ty][tx-1] == tile):
 						ty += 1
 						
-					if tile == "C" or tile == "c":
-						color = cyan
-					else:
-						color = yellow
-						
 					if tile == "c" or tile == "y":
 						dir = -1
 					else:
 						dir = 1
 						
-					m = Mover(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, color, dir, self.movercount)
+					m = Mover(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, colors[tile], dir, self.movercount)
 					self.movers.append(m)
 					
 					for qy in range (y, ty):
