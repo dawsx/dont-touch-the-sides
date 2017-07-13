@@ -164,7 +164,7 @@ class GameScene(Scene):
 					
 					for qy in range (y, ty):
 						for qx in range(x, tx):
-							level_tiles[qy][qx] = " "
+							level_tiles[qy][qx] = ' '
 					
 					self.movercount += 1
 		self.ship = Ship(self.spawn_x, self.spawn_y)
@@ -284,58 +284,34 @@ def loadLevel(levelimg):
 		pixellist = [temp] + pixellist
 		file.seek(pad, 1)
 	
-	# tile constants for loading a level from bmp
-	spawntile = b'\xff'
-	bgtile = b'\x00'
-	walltile = b'\xa4'
-	bluedoortile = b'\xd2'
-	blueswitchtile = b'\xec'
-	reddoortile = b'\x4f'
-	redswitchtile = b'\xef'
-	greendoortile = b'\x71'
-	greenswitchtile = b'\x3e'
-	magentadoortile = b'\xd5'
-	magentaswitchtile = b'\x07'
-	mwalltile_l = b'\xfb'
-	mwalltile_r = b'\x08'
-	mwalltile_u	= b'\xe8'
-	mwalltile_d = b'\x09'
+	tiledict = {
+			spawntile: "S",
+			bgtile: " ",
+			walltile: "W",
+			bluedoortile: "B",
+			blueswitchtile: "b",
+			reddoortile: "R",
+			redswitchtile: "r",
+			greendoortile: "G",
+			greenswitchtile: "g",
+			magentadoortile: "M",
+			magentaswitchtile: "m",
+			movertile_l: "y",
+			movertile_r: "Y",
+			movertile_u: "c",
+			movertile_d: "C",
+			pushertile_l: "<",
+			pushertile_r: ">",
+			pushertile_u: "^",
+			pushertile_d: "v"
+	}
 
 	level = []
 	for row in pixellist:
 		str = []
 		splitrow = [row[i:i+1] for i in range(0, len(row))]
 		for col in splitrow:
-			if col == spawntile:
-				str += ["S"]
-			elif col == walltile:
-				str += ["W"]
-			elif col == reddoortile:
-				str += ["R"]
-			elif col == redswitchtile:
-				str += ["r"]
-			elif col == bluedoortile:
-				str += ["B"]
-			elif col == blueswitchtile:
-				str += ["b"]
-			elif col == greendoortile:
-				str += ["G"]
-			elif col == greenswitchtile:
-				str += ["g"]
-			elif col == magentadoortile:
-				str += ["M"]
-			elif col == magentaswitchtile:
-				str += ["m"]
-			elif col == mwalltile_l:
-				str += ["Y"]
-			elif col == mwalltile_r:
-				str += ["y"]
-			elif col == mwalltile_u:
-				str += ["C"]
-			elif col == mwalltile_d:
-				str += ["c"]
-			else:
-				str += [" "]
+			str += tiledict[col]
 		
 		level.append(str)
 	return level

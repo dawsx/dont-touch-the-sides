@@ -18,6 +18,27 @@ magenta = (255, 0, 255)
 
 colors = {"R": red, "r": red, "B": blue, "b": blue, "G": green, "g": green, "M": magenta, "m": magenta, "C": cyan, "c": cyan, "Y": yellow, "y": yellow}
 
+# tile constants for loading a level from bmp
+spawntile = b'\xff'
+bgtile = b'\x00'
+walltile = b'\xa4'
+bluedoortile = b'\xd2'
+blueswitchtile = b'\xec'
+reddoortile = b'\x4f'
+redswitchtile = b'\xef'
+greendoortile = b'\x71'
+greenswitchtile = b'\x3e'
+magentadoortile = b'\xd5'
+magentaswitchtile = b'\x07'
+movertile_l = b'\x08'
+movertile_r = b'\xfb'
+movertile_u = b'\x09'
+movertile_d	= b'\xe8'
+pushertile_l = b'\x37'
+pushertile_r = b'\x67'
+pushertile_u = b'\x66'
+pushertile_d = b'\x01'
+
 # display constants
 res_x = 1024
 res_y = 768
