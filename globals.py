@@ -60,3 +60,21 @@ levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir,
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 clock = pygame.time.Clock()
+
+arrows = []
+arrowcolors = [red, green, blue, yellow]
+for c in arrowcolors:
+	a = pygame.Surface([tilesize, tilesize])
+	pygame.draw.rect(a, c, [tilesize/8, tilesize/2, tilesize/8, tilesize/2])
+	pygame.draw.rect(a, c, [tilesize/4, tilesize/4, tilesize/8, tilesize*5/8])
+	pygame.draw.rect(a, c, [tilesize*3/8, 0, tilesize/4, tilesize*5/8])
+	pygame.draw.rect(a, c, [tilesize*5/8, tilesize/4, tilesize/8, tilesize*5/8])
+	pygame.draw.rect(a, c, [tilesize*3/4, tilesize/2, tilesize/8, tilesize/2])
+	arrows.append(a)
+	
+pushdict = {
+"^": 0,
+"<": 1,
+"v": 2,
+">": 3
+}

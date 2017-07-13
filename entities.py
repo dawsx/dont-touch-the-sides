@@ -70,7 +70,7 @@ class Ship(object):
 	def draw(self, framecount = 16):
 		if framecount > 15:
 			if len(self.trail) > 1:
-				pygame.draw.lines(gameDisplay, white, False, self.trail)
+				pygame.draw.aalines(gameDisplay, white, False, self.trail)
 			drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, self.ship_size)
 		else:
 			drawSpawnShip(self.pos_x, self.pos_y, self.ship_size, framecount)
@@ -393,6 +393,21 @@ class Mover(object):
 					return [True, False]
 
 		return [False, False]
+
+# these will accelerate the ship in one of 4 directions, depending on their orientation
+# this will either be the last feature I add, or I'll scrap it if it's not fun to play.
+# but I feel like it'll be fun
+class Pusher(object):
+	def __init__(self, x, y, dir):
+		self.x = x
+		self.y = y
+		self.dir = dir
+		self.hitbox = pygame.Rect(x, y, tilesize, tilesize)
+		
+	def draw(self, framecount):
+		frames = int(framecount/40)
+		arrow = pygame.transform.rotate(arrows[(self.dir+frames)%4], 90*self.dir)
+		gameDisplay.blit(arrow, (self.x, self.y))
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	if accel_x > 0:

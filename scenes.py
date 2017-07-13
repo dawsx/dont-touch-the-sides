@@ -105,6 +105,7 @@ class GameScene(Scene):
 		self.switches = []
 		self.movers = []
 		self.movercount = 0
+		self.pushers = []
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
@@ -167,6 +168,12 @@ class GameScene(Scene):
 							level_tiles[qy][qx] = ' '
 					
 					self.movercount += 1
+				
+				elif tile == "<" or tile == ">" or tile == "^" or tile == "v":
+					if (x + y)%2 == 0:
+						p = Pusher(x*tilesize+level_left, y*tilesize+level_top, pushdict[tile])
+						#print (pushdict[tile])
+						self.pushers.append(p)
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.reddoorsopen = False
 		self.bluedoorsopen = False
@@ -177,6 +184,8 @@ class GameScene(Scene):
 	
 	def render(self):
 		gameDisplay.fill(black)
+		for p in self.pushers:
+			p.draw(self.framecount)
 		for w in self.walls:
 			w.draw(self.ship)
 		for s in self.switches:
