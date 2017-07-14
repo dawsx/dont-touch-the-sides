@@ -246,7 +246,7 @@ class GameScene(Scene):
 				m.collide()
 			for m in self.movers:
 				m.move()
-			
+			self.ship.pushCheck(self.pushers)
 			dead = self.ship.collide(self.walls + self.doors, self.movers)
 			if dead:
 				self.manager.go_to(GameScene(self.levelno))

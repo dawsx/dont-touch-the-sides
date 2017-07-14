@@ -51,6 +51,7 @@ level_top = 11*tilesize
 level_bottom = 94*tilesize
 
 wallspeed = 2
+pushforce = 0.3
 
 # create the list of levels
 from os import listdir

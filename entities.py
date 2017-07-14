@@ -16,23 +16,24 @@ class Ship(object):
 		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
 		self.thrustbox_x = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size/2)
 		self.thrustbox_y = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size/2, self.ship_size)
-		self.is_accel = False
+		self.pushlist = [False, False, False, False]
 
 	def update(self, lkey, rkey, ukey, dkey, spacebar):
+		pushdir = (int(self.pushlist[3])-int(self.pushlist[1]), int(self.pushlist[2])-int(self.pushlist[0]))
 		if not spacebar:
 			self.accel_x = self.max_accel*(int(rkey) - int(lkey))
 			self.accel_y = self.max_accel*(int(dkey) - int(ukey))
 		else:
-			self.accel_x = -self.vel_x
-			self.accel_y = -self.vel_y
+			k = 3
+			self.accel_x = -self.vel_x - pushdir[0]/self.mass
+			self.accel_y = -self.vel_y - pushdir[1]/self.mass
 			scale = self.max_accel
 			if abs(self.accel_x) > self.max_accel or abs(self.accel_y) > self.max_accel:
 				scale = max(abs(self.accel_x),abs(self.accel_y))
 			self.accel_x *= self.max_accel/scale
 			self.accel_y *= self.max_accel/scale
-			# print ('acceleration: ({0},{1}); velocity: ({2},{3})'.format(self.accel_x, self.accel_y, self.vel_x, self.vel_y))
-		self.vel_x += self.accel_x/self.mass
-		self.vel_y += self.accel_y/self.mass
+		self.vel_x += (self.accel_x + pushdir[0] * pushforce)/self.mass
+		self.vel_y += (self.accel_y + pushdir[1] * pushforce)/self.mass
 		if abs(self.vel_x) < 0.05:
 			self.vel_x = 0
 		if abs(self.vel_y) < 0.05:
@@ -66,6 +67,13 @@ class Ship(object):
 					return [True, False]
 
 		return [False, False]
+		
+	def pushCheck(self, pushers):
+		self.pushlist = [False, False, False, False]
+		for p in pushers:
+			if self.hitbox.colliderect(p.hitbox):
+				self.pushlist[p.dir] = True
+				
 	
 	def draw(self, framecount = 16):
 		if framecount > 15:
