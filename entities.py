@@ -25,8 +25,8 @@ class Ship(object):
 			self.accel_y = self.max_accel*(int(dkey) - int(ukey))
 		else:
 			k = 3
-			self.accel_x = -self.vel_x - pushdir[0]/self.mass
-			self.accel_y = -self.vel_y - pushdir[1]/self.mass
+			self.accel_x = -self.vel_x - pushdir[0]*pushforce
+			self.accel_y = -self.vel_y - pushdir[1]*pushforce
 			scale = self.max_accel
 			if abs(self.accel_x) > self.max_accel or abs(self.accel_y) > self.max_accel:
 				scale = max(abs(self.accel_x),abs(self.accel_y))
