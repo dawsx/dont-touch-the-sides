@@ -42,7 +42,7 @@ pushertile_d = b'\x01'
 # display constants
 res_x = 1024
 res_y = 768
-fps = 60
+fps = 15
 tilesize = 8
 
 level_left = 1*tilesize
@@ -51,7 +51,7 @@ level_top = 11*tilesize
 level_bottom = 94*tilesize
 
 wallspeed = 2
-pushforce = 0.3
+pushforce = 0.4
 
 # create the list of levels
 from os import listdir

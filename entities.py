@@ -276,6 +276,7 @@ class Mover(object):
 			self.trailbox = pygame.Rect(x-wallspeed, y, wid, hi)
 		self.walls = []
 		self.movers = []
+		self.pushers = []
 		
 	def draw(self):
 		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
@@ -287,7 +288,7 @@ class Mover(object):
 	# 
 	# With this function, there's no discernable CPU difference between a level with 4 movers
 	# and a level with 60
-	def initcollide(self, walls, movers):
+	def initCollide(self, walls, movers, pushers):
 		for w in walls:
 			skip = False
 			if self.color == cyan:
@@ -311,8 +312,68 @@ class Mover(object):
 							skip = True
 				if not skip:
 					self.movers.append(m)
+					
+		for p in pushers:
+			skip = False
+			if self.color == cyan:
+				if p.x + tilesize <= self.x or p.x >= self.x + self.wid:
+					skip = True
+			else:
+				if p.y + tilesize <= self.y or p.y >= self.y + self.hi:
+					skip = True
+			if not skip:
+				self.pushers.append(p)
 
-	def collide(self):
+	def collide(self, walls, movers, pushers):
+	
+		# everything from here until maincollide = False is broken
+		if self.x % tilesize == 0 and self.y % tilesize == 0:
+			mydir = self.dir + 1
+			if self.color == yellow:
+				mydir += 1
+			pcount = 0
+			pdirlist = []
+			for p in self.pushers:
+				if self.hitbox.colliderect(p.hitbox):
+					pcount += 1
+					pdirlist.append(p.dir)
+			if pcount > 1:
+				print ("doing something: {0}\t{1}".format(self.x, self.y))
+				pushdir = [0, 0, 0, 0]
+				for d in pdirlist:
+					pushdir[d] += 1
+				if pushdir[0] == pushdir[2]:
+					pushdir[0] = 0
+					pushdir[2] = 0
+				if pushdir[1] == pushdir[3]:
+					pushdir[1] = 0
+					pushdir[3] = 0
+				max = 0
+				maxindices = []
+				for i in range(0, len(pushdir)):
+					if pushdir[i] > max:
+						max = pushdir[i]
+						print (i)
+						
+				for i in range(0, len(pushdir)):
+					if pushdir[i] == max:
+						maxindices.append(i)
+				
+				setdir = -1
+				
+				if len(maxindices) == 1:
+					setdir = maxindices[0]
+				
+				elif len(maxindices) == 2:
+					for i in maxindices:
+						if (i - mydir) % 2 == 1:
+							setdir = i
+						elif (i - mydir) % 2 == 0 and setdir == -1:
+							setdir = i
+				print(setdir)
+				if setdir != mydir:
+					self.changeDir(setdir, walls, movers, pushers)
+						
 		maincollide = False
 		leadcollide = False
 		trailcollide = False
@@ -357,7 +418,30 @@ class Mover(object):
 			self.dir = 0
 		if not maincollide and not leadcollide and not trailcollide:
 			self.dir = self.prevdir
-	
+			
+
+						
+	def changeDir(self, newdir, walls, movers, pushers):
+		if newdir % 2 == 0:
+			newcolor = cyan
+		else:
+			newcolor = yellow
+			
+		if newcolor != self.color:
+			self.color = newcolor
+			self.walls = []
+			self.movers = []
+			self.pushers = []
+			self.initCollide(walls, movers, pushers)
+		
+		else:
+			self.color = newcolor
+			
+		if self.color == yellow:
+			self.dir = newdir - 2
+		else:
+			self.dir = newdir - 1
+
 	def move(self):
 		if self.dir != 0:
 			if self.color == cyan:

@@ -179,8 +179,8 @@ class GameScene(Scene):
 		self.bluedoorsopen = False
 		self.greendoorsopen = False
 		for m in self.movers:
-			m.initcollide(self.walls + self.doors, self.movers)
-		print (len(self.movers))
+			m.initCollide(self.walls + self.doors, self.movers, self.pushers)
+		#print (len(self.movers))
 	
 	def render(self):
 		gameDisplay.fill(black)
@@ -243,7 +243,7 @@ class GameScene(Scene):
 					d.opened = not self.greendoorsopen
 			
 			for m in self.movers:
-				m.collide()
+				m.collide(self.walls + self.doors, self.movers, self.pushers)
 			for m in self.movers:
 				m.move()
 			self.ship.pushCheck(self.pushers)
