@@ -149,10 +149,10 @@ class GameScene(Scene):
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
 					tx = x
 					ty = y
-					while (level_tiles[ty][tx] == tile):
+					while (tx < len(level_tiles[0]) and level_tiles[ty][tx] == tile):
 						tx += 1
 						
-					while (level_tiles[ty][tx-1] == tile):
+					while (ty < len(level_tiles) and level_tiles[ty][tx-1] == tile):
 						ty += 1
 						
 					if tile == "c" or tile == "y":
@@ -293,28 +293,6 @@ def loadLevel(levelimg):
 		pixellist = [temp] + pixellist
 		file.seek(pad, 1)
 	
-	tiledict = {
-			spawntile: "S",
-			bgtile: " ",
-			walltile: "W",
-			bluedoortile: "B",
-			blueswitchtile: "b",
-			reddoortile: "R",
-			redswitchtile: "r",
-			greendoortile: "G",
-			greenswitchtile: "g",
-			magentadoortile: "M",
-			magentaswitchtile: "m",
-			movertile_l: "y",
-			movertile_r: "Y",
-			movertile_u: "c",
-			movertile_d: "C",
-			pushertile_l: "<",
-			pushertile_r: ">",
-			pushertile_u: "^",
-			pushertile_d: "v"
-	}
-
 	level = []
 	for row in pixellist:
 		str = []

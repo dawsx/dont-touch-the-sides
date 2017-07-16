@@ -268,11 +268,9 @@ class Mover(object):
 		self.hitbox = pygame.Rect(x, y, wid, hi)
 		if self.color == cyan:
 			self.leadbox = pygame.Rect(x, y+wallspeed, wid, hi)
-		else:
-			self.leadbox = pygame.Rect(x+wallspeed, y, wid, hi)
-		if self.color == cyan:
 			self.trailbox = pygame.Rect(x, y-wallspeed, wid, hi)
 		else:
+			self.leadbox = pygame.Rect(x+wallspeed, y, wid, hi)
 			self.trailbox = pygame.Rect(x-wallspeed, y, wid, hi)
 		self.walls = []
 		self.movers = []
@@ -326,31 +324,25 @@ class Mover(object):
 
 	def collide(self, walls, movers, pushers):	
 		if self.x % tilesize == 0 and self.y % tilesize == 0:
-			pushlist = [False, False, False, False]
-			mydir = self.dir + 1
-			if self.color == yellow:
-				mydir += 1
-			pcount = 0
 			pdirlist = []
 			for p in self.pushers:
 				if self.hitbox.colliderect(p.hitbox):
-					pcount += 1
 					pdirlist.append(p.dir)
-			if pcount > 1:
+			if len(pdirlist) > 1:
+				pushlist = [False, False, False, False]
 				for p in pdirlist:
 					pushlist[p] = True
+				
 				pushdir = {yellow: int(pushlist[3])-int(pushlist[1]), cyan: int(pushlist[2])-int(pushlist[0])}
 				if self.color == cyan:
 					if pushdir[yellow] != 0:
-						newdir = pushdir[yellow]
-						self.changeDir(newdir, yellow, walls, movers, pushers)
+						self.changeDir(pushdir[yellow], yellow, walls, movers, pushers)
 					else:
 						self.dir = pushdir[cyan]
 						self.prevdir = self.dir
 				else:
 					if pushdir[cyan] != 0:
-						newdir = pushdir[cyan]
-						self.changeDir(newdir, cyan, walls, movers, pushers)
+						self.changeDir(pushdir[cyan], cyan, walls, movers, pushers)
 					else:
 						self.dir = pushdir[yellow]
 						self.prevdir = self.dir
@@ -359,9 +351,7 @@ class Mover(object):
 		leadcollide = False
 		trailcollide = False
 		for w in self.walls:
-			if maincollide:
-				break
-			elif leadcollide and trailcollide:
+			if maincollide or leadcollide and trailcollide:
 				break
 			if w.opened == False:
 				collides = w.hitbox.collidelistall([self.hitbox, self.leadbox, self.trailbox])
@@ -373,9 +363,7 @@ class Mover(object):
 					elif c == 2:
 						trailcollide = True
 		for m in self.movers:
-			if maincollide:
-				break
-			elif leadcollide and trailcollide:
+			if maincollide or leadcollide and trailcollide:
 				break
 			collides = m.hitbox.collidelistall([self.leadbox, self.trailbox])
 			for c in collides:
@@ -383,44 +371,33 @@ class Mover(object):
 					leadcollide = True
 				elif c == 1:
 					trailcollide = True
-		if maincollide:
-			if self.dir != 0:
-				self.prevdir = self.dir
+		
+		if maincollide or leadcollide and trailcollide:
 			self.dir = 0
-		if not maincollide and leadcollide and not trailcollide:
+		elif leadcollide and not trailcollide:
 			self.dir = -1
-			self.prevdir = self.dir
-		if not maincollide and not leadcollide and trailcollide:
+		elif not leadcollide and trailcollide:
 			self.dir = 1
-			self.prevdir = self.dir
-		if not maincollide and leadcollide and trailcollide:
-			if self.dir != 0:
-				self.prevdir = self.dir
-			self.dir = 0
-		if not maincollide and not leadcollide and not trailcollide:
+		else:
 			self.dir = self.prevdir
-			
 
+		if self.dir != 0:
+			self.prevdir = self.dir
 						
 	def changeDir(self, newdir, newcolor, walls, movers, pushers):
-		
-		if newcolor != self.color:
-			self.color = newcolor
-			self.walls = []
-			self.movers = []
-			self.pushers = []
-			self.initCollide(walls, movers, pushers)
-			if self.color == cyan:
-				self.leadbox = pygame.Rect(self.x, self.y+wallspeed, self.wid, self.hi)
-			else:
-				self.leadbox = pygame.Rect(self.x+wallspeed, self.y, self.wid, self.hi)
-			if self.color == cyan:
-				self.trailbox = pygame.Rect(self.x, self.y-wallspeed, self.wid, self.hi)
-			else:
-				self.trailbox = pygame.Rect(self.x-wallspeed, self.y, self.wid, self.hi)
-		
+		self.color = newcolor
+		self.walls = []
+		self.movers = []
+		self.pushers = []
+		self.initCollide(walls, movers, pushers)
 		self.dir = newdir
-		self.prevdir = newdir
+		self.prevdir = self.dir
+		if self.color == cyan:
+			self.leadbox = pygame.Rect(self.x, self.y+wallspeed, self.wid, self.hi)
+			self.trailbox = pygame.Rect(self.x, self.y-wallspeed, self.wid, self.hi)
+		else:
+			self.leadbox = pygame.Rect(self.x+wallspeed, self.y, self.wid, self.hi)
+			self.trailbox = pygame.Rect(self.x-wallspeed, self.y, self.wid, self.hi)
 
 	def move(self):
 		if self.dir != 0:
