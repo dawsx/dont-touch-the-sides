@@ -324,10 +324,9 @@ class Mover(object):
 			if not skip:
 				self.pushers.append(p)
 
-	def collide(self, walls, movers, pushers):
-	
-		# everything from here until maincollide = False is broken
+	def collide(self, walls, movers, pushers):	
 		if self.x % tilesize == 0 and self.y % tilesize == 0:
+			pushlist = [False, False, False, False]
 			mydir = self.dir + 1
 			if self.color == yellow:
 				mydir += 1
@@ -338,42 +337,24 @@ class Mover(object):
 					pcount += 1
 					pdirlist.append(p.dir)
 			if pcount > 1:
-				print ("doing something: {0}\t{1}".format(self.x, self.y))
-				pushdir = [0, 0, 0, 0]
-				for d in pdirlist:
-					pushdir[d] += 1
-				if pushdir[0] == pushdir[2]:
-					pushdir[0] = 0
-					pushdir[2] = 0
-				if pushdir[1] == pushdir[3]:
-					pushdir[1] = 0
-					pushdir[3] = 0
-				max = 0
-				maxindices = []
-				for i in range(0, len(pushdir)):
-					if pushdir[i] > max:
-						max = pushdir[i]
-						print (i)
-						
-				for i in range(0, len(pushdir)):
-					if pushdir[i] == max:
-						maxindices.append(i)
+				for p in pdirlist:
+					pushlist[p] = True
+				pushdir = {yellow: int(pushlist[3])-int(pushlist[1]), cyan: int(pushlist[2])-int(pushlist[0])}
+				if self.color == cyan:
+					if pushdir[yellow] != 0:
+						newdir = pushdir[yellow]
+						self.changeDir(newdir, yellow, walls, movers, pushers)
+					else:
+						self.dir = pushdir[cyan]
+						self.prevdir = self.dir
+				else:
+					if pushdir[cyan] != 0:
+						newdir = pushdir[cyan]
+						self.changeDir(newdir, cyan, walls, movers, pushers)
+					else:
+						self.dir = pushdir[yellow]
+						self.prevdir = self.dir
 				
-				setdir = -1
-				
-				if len(maxindices) == 1:
-					setdir = maxindices[0]
-				
-				elif len(maxindices) == 2:
-					for i in maxindices:
-						if (i - mydir) % 2 == 1:
-							setdir = i
-						elif (i - mydir) % 2 == 0 and setdir == -1:
-							setdir = i
-				print(setdir)
-				if setdir != mydir:
-					self.changeDir(setdir, walls, movers, pushers)
-						
 		maincollide = False
 		leadcollide = False
 		trailcollide = False
@@ -421,26 +402,25 @@ class Mover(object):
 			
 
 						
-	def changeDir(self, newdir, walls, movers, pushers):
-		if newdir % 2 == 0:
-			newcolor = cyan
-		else:
-			newcolor = yellow
-			
+	def changeDir(self, newdir, newcolor, walls, movers, pushers):
+		
 		if newcolor != self.color:
 			self.color = newcolor
 			self.walls = []
 			self.movers = []
 			self.pushers = []
 			self.initCollide(walls, movers, pushers)
+			if self.color == cyan:
+				self.leadbox = pygame.Rect(self.x, self.y+wallspeed, self.wid, self.hi)
+			else:
+				self.leadbox = pygame.Rect(self.x+wallspeed, self.y, self.wid, self.hi)
+			if self.color == cyan:
+				self.trailbox = pygame.Rect(self.x, self.y-wallspeed, self.wid, self.hi)
+			else:
+				self.trailbox = pygame.Rect(self.x-wallspeed, self.y, self.wid, self.hi)
 		
-		else:
-			self.color = newcolor
-			
-		if self.color == yellow:
-			self.dir = newdir - 2
-		else:
-			self.dir = newdir - 1
+		self.dir = newdir
+		self.prevdir = newdir
 
 	def move(self):
 		if self.dir != 0:
