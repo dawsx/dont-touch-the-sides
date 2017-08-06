@@ -72,7 +72,7 @@ pushforce = 0.4
 # create the list of levels
 from os import listdir
 from os.path import isfile, join
-leveldir = "./levels_test"
+leveldir = "./levels"
 levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
