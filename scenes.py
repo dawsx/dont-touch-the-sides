@@ -90,6 +90,8 @@ class TitleScene(Scene):
 class GameScene(Scene):
 	def __init__(self, levelno):
 		super(GameScene, self).__init__()
+		self.title = levels[levelno][:-4]
+		self.title_x, self.title_y = text.sizeString(self.title,6)
 		self.ispaused = False
 		self.pausedelay = 0
 		self.framecount = 0
@@ -184,6 +186,9 @@ class GameScene(Scene):
 	
 	def render(self):
 		gameDisplay.fill(black)
+		x_next = (res_x - self.title_x)/2
+		y_line = (level_top - self.title_y)/2
+		x_next = text.placeString(gameDisplay, self.title, white, x_next, y_line, 6)
 		for p in self.pushers:
 			p.draw(self.framecount)
 		for w in self.walls:
@@ -277,7 +282,7 @@ class SceneManager(object):
 		self.scene.manager = self
 	
 def loadLevel(levelimg):
-	file = open(levelimg, 'rb')
+	file = open(leveldir + "\\" + levelimg, 'rb')
 	file.seek(0x12)
 	bwidth = file.read(4)
 	bheight = file.read(4)

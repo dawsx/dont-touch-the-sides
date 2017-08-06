@@ -73,7 +73,48 @@ pushforce = 0.4
 from os import listdir
 from os.path import isfile, join
 leveldir = "./levels"
-levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
+#levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
+levels = [
+	'out you go.bmp',
+	'zig zag.bmp',
+	'spiral.bmp',
+	'roses are red.bmp',
+	'violets are blue.bmp',
+	'it takes two.bmp',
+	'crossover.bmp',
+	"three's company.bmp",
+	'criss cross.bmp',
+	'they move.bmp',
+	'sliders.bmp',
+	'between the lines.bmp',
+	'who turned out the lights.bmp',
+	'find your way.bmp',
+	'force your way.bmp',
+	'tricky spiral.bmp',
+	'closing time.bmp',
+	'following directions.bmp',
+	'one plus one.bmp',
+	'alternator.bmp',
+	'a test.bmp',
+	'watch the door.bmp',
+	'around the block.bmp',
+	'round and round.bmp',
+	'ninety degrees.bmp',
+	'buddy system.bmp',
+	'syncopation.bmp',
+	'be careful.bmp',
+	'be quick about it.bmp',
+	'detour.bmp',
+	"don't trust it.bmp",
+	'technicolor.bmp',
+	'uh oh.bmp',
+	'hard to reach.bmp',
+	'weave.bmp',
+	'sidestep.bmp',
+	'near miss.bmp',
+	"that's too much man.bmp",
+	'cursed switch.bmp',
+]
 
 gameDisplay = pygame.display.set_mode((res_x, res_y))
 clock = pygame.time.Clock()
