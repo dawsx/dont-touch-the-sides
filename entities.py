@@ -483,10 +483,14 @@ class Mover(object):
 			# can hit a green switch and a mover can hit a magenta switch
 			if (maincollide and leadcollide and not trailcollide and 
 				self.dir == 1):
+				
 				flip = True
+			
 			elif (maincollide and trailcollide and not leadcollide and 
 				self.dir == -1):
+				
 				flip = True
+			
 			else:
 				flip = False
 			if flip:

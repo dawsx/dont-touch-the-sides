@@ -73,7 +73,6 @@ pushforce = 0.4
 from os import listdir
 from os.path import isfile, join
 leveldir = "./levels"
-#levels = [leveldir + "/" + f for f in listdir(leveldir) if isfile(join(leveldir, f))]
 levels = [
 	'out you go.bmp',
 	'zig zag.bmp',
@@ -123,11 +122,11 @@ arrows = []
 arrowcolors = [red, green, blue, yellow]
 for c in arrowcolors:
 	a = pygame.Surface([tilesize, tilesize])
-	pygame.draw.rect(a, c, [tilesize/8, tilesize/2, tilesize/8, tilesize/2])
-	pygame.draw.rect(a, c, [tilesize/4, tilesize/4, tilesize/8, tilesize*5/8])
-	pygame.draw.rect(a, c, [tilesize*3/8, 0, tilesize/4, tilesize*5/8])
-	pygame.draw.rect(a, c, [tilesize*5/8, tilesize/4, tilesize/8, tilesize*5/8])
-	pygame.draw.rect(a, c, [tilesize*3/4, tilesize/2, tilesize/8, tilesize/2])
+	pygame.draw.rect(a,c,[tilesize/8, tilesize/2, tilesize/8, tilesize/2])
+	pygame.draw.rect(a,c,[tilesize/4, tilesize/4, tilesize/8, tilesize*5/8])
+	pygame.draw.rect(a,c,[tilesize*3/8, 0, tilesize/4, tilesize*5/8])
+	pygame.draw.rect(a,c,[tilesize*5/8, tilesize/4, tilesize/8, tilesize*5/8])
+	pygame.draw.rect(a,c,[tilesize*3/4, tilesize/2, tilesize/8, tilesize/2])
 	arrows.append(a)
 	
 pushdict = {

@@ -39,7 +39,8 @@ class TitleScene(Scene):
 		y_line = 67
 		wid_str = text.sizeString("don't touch the sides",8)[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "don't touch the sides", white, x_start, y_line, 8)
+		x_next = text.placeString(gameDisplay, "don't touch the sides", white, 
+			x_start, y_line, 8)
 
 		
 		linespace = 48
@@ -48,42 +49,57 @@ class TitleScene(Scene):
 		wid_str = text.sizeString("wasd or <_^> to move")[0]
 		x_start = (res_x - wid_str)/2
 
-		x_next = text.placeString(gameDisplay, "wasd", wasdcolor, x_start, y_line)
-		x_next = text.placeString(gameDisplay, "or", white, x_next, y_line)
-		x_next = text.placeString(gameDisplay, "<_^>", arrowcolor, x_next, y_line)
-		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
-		x_next = text.placeString(gameDisplay, "move", green, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "wasd", wasdcolor, 
+			x_start, y_line)
+		x_next = text.placeString(gameDisplay, "or", white, 
+			x_next, y_line)
+		x_next = text.placeString(gameDisplay, "<_^>", arrowcolor, 
+			x_next, y_line)
+		x_next = text.placeString(gameDisplay, "to", white, 
+			x_next, y_line)
+		x_next = text.placeString(gameDisplay, "move", green, 
+			x_next, y_line)
 		
 		y_line += linespace
 		wid_str = text.sizeString("spacebar to stop")[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "spacebar", spacebarcolor, x_start, y_line)
+		x_next = text.placeString(gameDisplay, "spacebar", spacebarcolor, 
+			x_start, y_line)
 		x_next = text.placeString(gameDisplay, "to", white, x_next, y_line)
 		x_next = text.placeString(gameDisplay, "stop", red, x_next, y_line)
 
 		y_line += linespace
 		wid_str = text.sizeString("find the exit in each level")[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "find the exit", white, x_start, y_line)
-		x_next = text.placeString(gameDisplay, "in each level", white, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "find the exit", white, 
+			x_start, y_line)
+		x_next = text.placeString(gameDisplay, "in each level", white, 
+			x_next, y_line)
 
 		y_line += linespace
 		wid_str = text.sizeString("press enter/return to begin")[0]
 		x_start = (res_x - wid_str)/2
-		x_next = text.placeString(gameDisplay, "press", white, x_start, y_line)
-		x_next = text.placeString(gameDisplay, "enter/return", entercolor, x_next, y_line)
-		x_next = text.placeString(gameDisplay, "to begin", white, x_next, y_line)
+		x_next = text.placeString(gameDisplay, "press", white, 
+			x_start, y_line)
+		x_next = text.placeString(gameDisplay, "enter/return", entercolor, 
+			x_next, y_line)
+		x_next = text.placeString(gameDisplay, "to begin", white, 
+			x_next, y_line)
 
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
+		(left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, 
+			enter) = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, 
+			pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, 
+			pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN)]
 		if enter:
 			self.manager.go_to(GameScene(0))
 		if escape and self.shipframes > 15:
 			self.ship = Ship(res_x/2, res_y/2)
 			self.shipframes = 0
 		if self.shipframes > 15:
-			self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
+			self.ship.update(left or akey, right or dkey, up or wkey, 
+				down or skey, spacebar)
 		self.framecount += 1
 		self.shipframes += 1
 
@@ -111,36 +127,62 @@ class GameScene(Scene):
 		for y in range (0, len(level_tiles)):
 			for x in range (0, len(level_tiles[0])):
 				tile = level_tiles[y][x]
-				if tile == "S" and level_tiles[y+1][x] == "S" and level_tiles[y][x+1] == "S":
+				if (tile == "S" and level_tiles[y+1][x] == "S" and 
+					level_tiles[y][x+1] == "S"):
 					self.spawn_x = (x+1)*tilesize + level_left
 					self.spawn_y = (y+1)*tilesize + level_top
 				elif tile == "W":
-					w = Wall(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, white)
+					w = Wall(x*tilesize+level_left, y*tilesize+level_top, 
+						tilesize, tilesize, white)
 					w.ghost = self.ghostlevel
 					if x == 0 or level_tiles[y][x-1] != "W":
 						w.leftline = True
-					if x == len(level_tiles[0])-1 or level_tiles[y][x+1] != "W":
+					
+					if (x == len(level_tiles[0])-1 or 
+						level_tiles[y][x+1] != "W"):
+						
 						w.rightline = True
+					
 					if y == 0 or level_tiles[y-1][x] != "W":
 						w.upline = True
+					
 					if y == len(level_tiles)-1 or level_tiles[y+1][x] != "W":
 						w.downline = True
-					if x != 0 and y != 0 and level_tiles[y][x-1] == "W" and level_tiles[y-1][x] == "W" and level_tiles[y-1][x-1] != "W":
+					
+					if (x != 0 and y != 0 and level_tiles[y][x-1] == "W" and 
+						level_tiles[y-1][x] == "W" and 
+						level_tiles[y-1][x-1] != "W"):
+						
 						w.upleft = True
-					if x != len(level_tiles[0])-1 and y != 0 and level_tiles[y][x+1] == "W" and level_tiles[y-1][x] == "W" and level_tiles[y-1][x+1] != "W":
+						
+					if (x != len(level_tiles[0])-1 and y != 0 and 
+						level_tiles[y][x+1] == "W" and level_tiles[y-1][x] == 
+						"W" and level_tiles[y-1][x+1] != "W"):
+					
 						w.upright = True
-					if x != 0 and y != len(level_tiles)-1 and level_tiles[y][x-1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x-1] != "W":
+					
+					if (x != 0 and y != len(level_tiles)-1 and 
+						level_tiles[y][x-1] == "W" and level_tiles[y+1][x] == 
+						"W" and level_tiles[y+1][x-1] != "W"):
+						
 						w.downleft = True
-					if x != len(level_tiles[0])-1 and y != len(level_tiles)-1 and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] == "W" and level_tiles[y+1][x+1] != "W":
+					
+					if (x != len(level_tiles[0])-1 and y != len(level_tiles)-1 
+						and level_tiles[y][x+1] == "W" and level_tiles[y+1][x] 
+						== "W" and level_tiles[y+1][x+1] != "W"):
+						
 						w.downright = True
+					
 					self.walls.append(w)
 				elif tile == "R" or tile == "B" or tile == "G" or tile == "M":
-					d = Door(x*tilesize+level_left, y*tilesize+level_top, tilesize, tilesize, colors[tile])
+					d = Door(x*tilesize+level_left, y*tilesize+level_top, 
+						tilesize, tilesize, colors[tile])
 					if tile == "M":
 						d.opened = True
 					self.doors.append(d)
 				elif tile == "r" or tile == "b" or tile == "g" or tile == "m":
-					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 2*tilesize, 2*tilesize, colors[tile])
+					s = Switch(x*tilesize+level_left, y*tilesize+level_top, 
+						2*tilesize, 2*tilesize, colors[tile])
 					if tile == "m":
 						s.flipped = True
 					self.switches.append(s)
@@ -151,10 +193,14 @@ class GameScene(Scene):
 				elif tile == "C" or tile == "c" or tile == "Y" or tile == "y":
 					tx = x
 					ty = y
-					while (tx < len(level_tiles[0]) and level_tiles[ty][tx] == tile):
+					while (tx < len(level_tiles[0]) and 
+						level_tiles[ty][tx] == tile):
+						
 						tx += 1
 						
-					while (ty < len(level_tiles) and level_tiles[ty][tx-1] == tile):
+					while (ty < len(level_tiles) and 
+						level_tiles[ty][tx-1] == tile):
+						
 						ty += 1
 						
 					if tile == "c" or tile == "y":
@@ -162,7 +208,9 @@ class GameScene(Scene):
 					else:
 						dir = 1
 						
-					m = Mover(x*tilesize+level_left, y*tilesize+level_top, (tx-x)*tilesize, (ty-y)*tilesize, colors[tile], dir, self.movercount)
+					m = Mover(x*tilesize+level_left, y*tilesize+level_top, 
+						(tx-x)*tilesize, (ty-y)*tilesize, colors[tile], dir, 
+						self.movercount)
 					self.movers.append(m)
 					
 					for qy in range (y, ty):
@@ -173,8 +221,8 @@ class GameScene(Scene):
 				
 				elif tile == "<" or tile == ">" or tile == "^" or tile == "v":
 					if (x + y)%2 == 0:
-						p = Pusher(x*tilesize+level_left, y*tilesize+level_top, pushdict[tile])
-						#print (pushdict[tile])
+						p = Pusher(x*tilesize+level_left, 
+							y*tilesize+level_top, pushdict[tile])
 						self.pushers.append(p)
 		self.ship = Ship(self.spawn_x, self.spawn_y)
 		self.reddoorsopen = False
@@ -182,13 +230,13 @@ class GameScene(Scene):
 		self.greendoorsopen = False
 		for m in self.movers:
 			m.initCollide(self.walls + self.doors, self.movers, self.pushers)
-		#print (len(self.movers))
 	
 	def render(self):
 		gameDisplay.fill(black)
 		x_next = (res_x - self.title_x)/2
 		y_line = (level_top - self.title_y)/2
-		x_next = text.placeString(gameDisplay, self.title, white, x_next, y_line, 6)
+		x_next = text.placeString(gameDisplay, self.title, white, 
+			x_next, y_line, 6)
 		for p in self.pushers:
 			p.draw(self.framecount)
 		for w in self.walls:
@@ -205,11 +253,16 @@ class GameScene(Scene):
 			wid_str, hi_str = text.sizeString("pause",8)
 			x_next = (res_x - wid_str)/2
 			y_line = (res_y - hi_str)/2
-			x_next = text.placeString(gameDisplay, "pause", yellow, x_next, y_line, 8)
+			x_next = text.placeString(gameDisplay, "pause", yellow, 
+				x_next, y_line, 8)
 			
 	def update(self):
 		pressed = pygame.key.get_pressed()
-		left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, enter, backspace = [pressed[key] for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_BACKSPACE)]
+		(left, right, up, down, wkey, akey, skey, dkey, spacebar, escape, 
+			enter, backspace) = [pressed[key] for key in (pygame.K_LEFT, 
+			pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_w, pygame.K_a,
+			pygame.K_s, pygame.K_d, pygame.K_SPACE, pygame.K_ESCAPE, 
+			pygame.K_RETURN, pygame.K_BACKSPACE)]
 		if self.ispaused:
 			if escape and self.pauseframes > 15:
 				self.ispaused = False
@@ -259,10 +312,17 @@ class GameScene(Scene):
 				self.ispaused = True
 				self.pauseframes = 0
 			if self.framecount > 15:
-				self.ship.update(left or akey, right or dkey, up or wkey, down or skey, spacebar)
+				self.ship.update(left or akey, right or dkey, up or wkey, 
+					down or skey, spacebar)
 				
-			# level is considered beaten when the ship leaves the window range. If this happens, go to the next level
-			if self.ship.pos_x > (res_x + self.ship.ship_size) or self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y > (res_y + self.ship.ship_size) or self.ship.pos_y < (0 - self.ship.ship_size) or (enter and self.framecount > 10 and skiplevels == True):
+			# level is considered beaten when the ship leaves the window range. 
+			# If this happens, go to the next level
+			if (self.ship.pos_x > (res_x + self.ship.ship_size) or 
+				self.ship.pos_x < (0 - self.ship.ship_size) or self.ship.pos_y 
+				> (res_y + self.ship.ship_size) or self.ship.pos_y < (level_top
+				- self.ship.ship_size) or (enter and self.framecount > 10 and 
+				skiplevels == True)):
+				
 				self.manager.go_to(GameScene(self.levelno + 1))
 			if backspace and self.framecount > 10 and skiplevels == True:
 				if self.levelno == 0:
