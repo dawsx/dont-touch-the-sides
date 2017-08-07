@@ -13,13 +13,17 @@ class Ship(object):
 		self.max_accel = 1
 		self.trail = [[pos_x, pos_y]]
 		self.trail_len = 20
-		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
-		self.thrustbox_x = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size, self.ship_size/2)
-		self.thrustbox_y = pygame.Rect(self.pos_x-self.ship_size/2, self.pos_y-self.ship_size/2, self.ship_size/2, self.ship_size)
+		self.hitbox = pygame.Rect(self.pos_x-self.ship_size/2, 
+			self.pos_y-self.ship_size/2, self.ship_size, self.ship_size)
+		self.thrustbox_x = pygame.Rect(self.pos_x-self.ship_size/2, 
+			self.pos_y-self.ship_size/2, self.ship_size, self.ship_size/2)
+		self.thrustbox_y = pygame.Rect(self.pos_x-self.ship_size/2, 
+			self.pos_y-self.ship_size/2, self.ship_size/2, self.ship_size)
 		self.pushlist = [False, False, False, False]
 
 	def update(self, lkey, rkey, ukey, dkey, spacebar):
-		pushdir = (int(self.pushlist[3])-int(self.pushlist[1]), int(self.pushlist[2])-int(self.pushlist[0]))
+		pushdir = (int(self.pushlist[3])-int(self.pushlist[1]), 
+			int(self.pushlist[2])-int(self.pushlist[0]))
 		if not spacebar:
 			self.accel_x = self.max_accel*(int(rkey) - int(lkey))
 			self.accel_y = self.max_accel*(int(dkey) - int(ukey))
@@ -28,7 +32,8 @@ class Ship(object):
 			self.accel_x = -self.vel_x - pushdir[0]*pushforce
 			self.accel_y = -self.vel_y - pushdir[1]*pushforce
 			scale = self.max_accel
-			if abs(self.accel_x) > self.max_accel or abs(self.accel_y) > self.max_accel:
+			if (abs(self.accel_x) > self.max_accel 
+				or abs(self.accel_y) > self.max_accel):
 				scale = max(abs(self.accel_x),abs(self.accel_y))
 			self.accel_x *= self.max_accel/scale
 			self.accel_y *= self.max_accel/scale
@@ -42,8 +47,10 @@ class Ship(object):
 		self.pos_x += self.vel_x
 		self.pos_y += self.vel_y
 		self.hitbox.center = (self.pos_x, self.pos_y)
-		self.thrustbox_x.center = (self.pos_x - self.accel_x*self.ship_size/2, self.pos_y)
-		self.thrustbox_y.center = (self.pos_x, self.pos_y - self.accel_y*self.ship_size/2)
+		self.thrustbox_x.center = (self.pos_x - self.accel_x*self.ship_size/2, 
+			self.pos_y)
+		self.thrustbox_y.center = (self.pos_x, self.pos_y 
+			- self.accel_y*self.ship_size/2)
 		self.trail.append([self.pos_x, self.pos_y])
 		if len(self.trail) > self.trail_len:
 			del self.trail[0]
@@ -59,7 +66,8 @@ class Ship(object):
 
 	def switchCheck(self, switches):
 		for s in switches:
-			if s.hitbox.collidelist([self.hitbox, self.thrustbox_x, self.thrustbox_y]) != -1:
+			if (s.hitbox.collidelist([self.hitbox, self.thrustbox_x, 
+				self.thrustbox_y]) != -1):
 				s.flipped = True
 				if s.color == green:
 					return [True, True]
@@ -79,7 +87,8 @@ class Ship(object):
 		if framecount > 15:
 			if len(self.trail) > 1:
 				pygame.draw.aalines(gameDisplay, white, False, self.trail)
-			drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, self.ship_size)
+			drawShip(self.pos_x, self.pos_y, self.accel_x, self.accel_y, 
+				self.ship_size)
 		else:
 			drawSpawnShip(self.pos_x, self.pos_y, self.ship_size, framecount)
 
@@ -93,10 +102,10 @@ class Wall(object):
 		self.ghost = False
 		self.opened = False
 		
-		# defines the wall's hitbox. If the wall is on an edge in the x direction,
-		# increase its width to prevent clipping out of bounds (it shouldn't be 
-		# possible to build up enough speed in the y direction to clip oob, but
-		# we'll see
+		# defines the wall's hitbox. If the wall is on a screen edge in the x 
+		# direction, increase its width to prevent clipping out of bounds (it 
+		# shouldn't be possible to build up enough speed in the y direction to 
+		# clip oob, but we'll see)
 		
 		if self.x == level_left:
 			self.hitbox = pygame.Rect(x-3*tilesize, y, wid+2*tilesize, hi)
@@ -114,27 +123,35 @@ class Wall(object):
 		self.downright = False
 	
 	def draw(self, ship):
-		# if the wall's color is set to white, it draws the walls with a regular white outline.
-		# otherwise, it draws the walls with a "ghost" effect
+		# binary "ghost" flag tells whether to draw the wall as normal or with 
+		# the ghost effect
 		if not self.ghost:
 			wallcolor = self.color
 			thickness = 2
 			if self.leftline:
-				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, self.hi])
+				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, 
+					self.hi])
 			if self.rightline:
-				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y, thickness, self.hi])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, 
+					self.y, thickness, self.hi])
 			if self.upline:
-				gameDisplay.fill(wallcolor, [self.x, self.y, self.wid, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y, self.wid, 
+					thickness])
 			if self.downline:
-				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness, self.wid, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness,
+					self.wid, thickness])
 			if self.upleft:
-				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y, thickness, 
+					thickness])
 			if self.upright:
-				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, 
+					self.y, thickness, thickness])
 			if self.downleft:
-				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x, self.y+self.hi-thickness,
+					thickness, thickness])
 			if self.downright:
-				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, self.y+self.hi-thickness, thickness, thickness])
+				gameDisplay.fill(wallcolor, [self.x+self.wid-thickness, 
+					self.y+self.hi-thickness, thickness, thickness])
 		else:
 			thickscale = 40000
 			diff_x1 = ship.pos_x - self.x
@@ -146,7 +163,8 @@ class Wall(object):
 			diff_x2 *= diff_x2
 			diff_y2 *= diff_y2
 			
-			# we don't need to divide if we know it'll be zero, so if/else statements to save CPU load
+			# we don't need to divide if we know it'll be zero, so if/else 
+			# statements to save CPU load
 			if diff_x1 + diff_y1 + 1 > thickscale:
 				thickness_ul = 0
 			else:
@@ -178,33 +196,48 @@ class Wall(object):
 				thickness_dr = max_thickness
 			
 			if self.leftline:
-				gameDisplay.fill(white, [self.x, self.y, thickness_ul, self.hi/2])
-				gameDisplay.fill(white, [self.x, self.y+self.hi/2, thickness_dl, self.hi/2])
+				gameDisplay.fill(white, [self.x, self.y, thickness_ul, 
+					self.hi/2])
+				gameDisplay.fill(white, [self.x, self.y+self.hi/2, 
+					thickness_dl, self.hi/2])
 			if self.rightline:
-				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, self.y, thickness_ur, self.hi/2])
-				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, self.y+self.hi/2, thickness_dr, self.hi/2])
+				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, 
+					self.y, thickness_ur, self.hi/2])
+				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, 
+					self.y+self.hi/2, thickness_dr, self.hi/2])
 			if self.upline:
-				gameDisplay.fill(white, [self.x, self.y, self.wid/2, thickness_ul])
-				gameDisplay.fill(white, [self.x+self.wid/2, self.y, self.wid/2, thickness_ur])
+				gameDisplay.fill(white, [self.x, self.y, self.wid/2, 
+					thickness_ul])
+				gameDisplay.fill(white, [self.x+self.wid/2, self.y, 
+					self.wid/2, thickness_ur])
 			if self.downline:
-				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, self.wid/2, thickness_dl])
-				gameDisplay.fill(white, [self.x+self.wid/2, self.y+self.hi-thickness_dr, self.wid/2, thickness_dr])
+				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, 
+					self.wid/2, thickness_dl])
+				gameDisplay.fill(white, [self.x+self.wid/2, 
+					self.y+self.hi-thickness_dr, self.wid/2, thickness_dr])
 			if self.upleft:
-				gameDisplay.fill(white, [self.x, self.y, thickness_ul, thickness_ul])
+				gameDisplay.fill(white, [self.x, self.y, thickness_ul, 
+					thickness_ul])
 			if self.upright:
-				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, self.y, thickness_ur, thickness_ur])
+				gameDisplay.fill(white, [self.x+self.wid-thickness_ur, 
+					self.y, thickness_ur, thickness_ur])
 			if self.downleft:
-				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, thickness_dl, thickness_dl])
+				gameDisplay.fill(white, [self.x, self.y+self.hi-thickness_dl, 
+					thickness_dl, thickness_dl])
 			if self.downright:
-				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, self.y+self.hi-thickness_dr, thickness_dr, thickness_dr])
+				gameDisplay.fill(white, [self.x+self.wid-thickness_dr, 
+					self.y+self.hi-thickness_dr, thickness_dr, thickness_dr])
 
 		
 # doors work as follows:
-# - blue doors are tied to blue switches. flip all the blue switches to open all the blue doors
+# - blue doors are tied to blue switches. flip all the blue switches to open 
+#    all the blue doors
 # - red doors work the same as blue doors, except with red switches
-# - green doors and magenta doors are paired. Hit a green switch to open all green doors and close all magenta doors. 
-#    hit a magenta switch to do the opposite. if you hit a green switch, it disables all green switches and enables 
-#    all magenta switches, and vice versa. magenta doors start open, and green doors start closed
+# - green doors and magenta doors are paired. Hit a green switch to open all 
+#    green doors and close all magenta doors. hit a magenta switch to do the 
+#    opposite. if you hit a green switch, it disables all green switches and 
+#    enables all magenta switches, and vice versa. magenta doors start open, 
+#    and green doors start closed
 
 class Door(object):
 	def __init__(self, x, y, wid, hi, color):
@@ -225,9 +258,11 @@ class Door(object):
 		
 	def draw(self):
 		if not self.opened:
-			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, 
+				self.wid, self.hi])
 		else:
-			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, 
+				self.wid, self.hi], 1)
 	
 class Switch(object):
 	def __init__(self, x, y, wid, hi, color):
@@ -242,11 +277,14 @@ class Switch(object):
 
 	def draw(self):
 		if not self.flipped:
-			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, 
+				self.wid, self.hi])
 		else:
-			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi], 1)
+			pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, 
+				self.wid, self.hi], 1)
 		switchtext = self.font.render('!', True, white)
-		gameDisplay.blit(switchtext, (self.x+5+int(self.color == blue), self.y-3))
+		gameDisplay.blit(switchtext, (self.x + 5 + int(self.color == blue),
+			self.y-3))
 		
 class Mover(object):
 	def __init__(self, x, y, wid, hi, color, startdir, id):
@@ -259,12 +297,14 @@ class Mover(object):
 		self.prevdir = self.dir
 		self.id = id
 		
-		# each mover has 3 hitboxes. A main hitbox that is exactly the shape and size of the wall;
-		# a leading hitbox the same shape and size, but shifted ahead by the wall speed; and a trailing 
-		# hitbox the same shape and size, but shifted behind
-		# by checking how each hitbox overlaps when colliding with walls and switches we can determine
-		# whether the mover should change direction, stop, hit a switch, etc. very quickly without
-		# worrying about counting frames or anything like that.
+		# each mover has 3 hitboxes. A main hitbox that is exactly the shape 
+		# and size of the wall; a leading hitbox the same shape and size, but 
+		# shifted ahead by the wall speed; and a trailing  hitbox the same 
+		# shape and size, but shifted behind by checking how each hitbox 
+		# overlaps with each other when colliding with walls and switches we 
+		# can determine whether the mover should change direction, stop, hit a 
+		# switch, etc. very quickly without worrying about counting frames or 
+		# tracking states or anything like that.
 		self.hitbox = pygame.Rect(x, y, wid, hi)
 		if self.color == cyan:
 			self.leadbox = pygame.Rect(x, y+wallspeed, wid, hi)
@@ -277,15 +317,18 @@ class Mover(object):
 		self.pushers = []
 		
 	def draw(self):
-		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, self.wid, self.hi])
-		pygame.draw.rect(gameDisplay, black, [self.x+2, self.y+2, self.wid-4, self.hi-4])
-	# Since movers move only along the x- or y- axes, anything outside their respective rows
-	# and columns can be safely ignored, with the exception of perpendicular-movers. This
-	# function gives a mover object a list of walls, doors, and movers that it may
-	# collide with, so when collision is checked the mover only checks these lists.
-	# 
-	# With this function, there's no discernable CPU difference between a level with 4 movers
-	# and a level with 60
+		pygame.draw.rect(gameDisplay, self.color, [self.x, self.y, 
+			self.wid, self.hi])
+		pygame.draw.rect(gameDisplay, black, [self.x+2, self.y+2, 
+			self.wid-4, self.hi-4])
+			
+	# Since movers move only along the x- or y- axes, anything outside their 
+	# respective rows and columns can be safely ignored, with the exception of 
+	# perpendicular-movers. This function gives a mover object a list of walls,
+	# doors, and movers that it may collide with, so when collision is checked 
+	# the mover only checks these lists. With this function, there's no 
+	# discernable CPU difference between a level with 4 movers and a level 
+	# with 60
 	def initCollide(self, walls, movers, pushers):
 		for w in walls:
 			skip = False
@@ -333,16 +376,19 @@ class Mover(object):
 				for p in pdirlist:
 					pushlist[p] = True
 				
-				pushdir = {yellow: int(pushlist[3])-int(pushlist[1]), cyan: int(pushlist[2])-int(pushlist[0])}
+				pushdir = {yellow: int(pushlist[3])-int(pushlist[1]), 
+					cyan: int(pushlist[2])-int(pushlist[0])}
 				if self.color == cyan:
 					if pushdir[yellow] != 0:
-						self.changeDir(pushdir[yellow], yellow, walls, movers, pushers)
+						self.changeDir(pushdir[yellow], yellow, walls, 
+							movers, pushers)
 					else:
 						self.dir = pushdir[cyan]
 						self.prevdir = self.dir
 				else:
 					if pushdir[cyan] != 0:
-						self.changeDir(pushdir[cyan], cyan, walls, movers, pushers)
+						self.changeDir(pushdir[cyan], cyan, walls, 
+							movers, pushers)
 					else:
 						self.dir = pushdir[yellow]
 						self.prevdir = self.dir
@@ -354,7 +400,8 @@ class Mover(object):
 			if maincollide or leadcollide and trailcollide:
 				break
 			if w.opened == False:
-				collides = w.hitbox.collidelistall([self.hitbox, self.leadbox, self.trailbox])
+				collides = w.hitbox.collidelistall([self.hitbox, 
+					self.leadbox, self.trailbox])
 				for c in collides:
 					if c == 0:
 						maincollide = True
@@ -393,11 +440,15 @@ class Mover(object):
 		self.dir = newdir
 		self.prevdir = self.dir
 		if self.color == cyan:
-			self.leadbox = pygame.Rect(self.x, self.y+wallspeed, self.wid, self.hi)
-			self.trailbox = pygame.Rect(self.x, self.y-wallspeed, self.wid, self.hi)
+			self.leadbox = pygame.Rect(self.x, self.y+wallspeed, 
+				self.wid, self.hi)
+			self.trailbox = pygame.Rect(self.x, self.y-wallspeed, 
+				self.wid, self.hi)
 		else:
-			self.leadbox = pygame.Rect(self.x+wallspeed, self.y, self.wid, self.hi)
-			self.trailbox = pygame.Rect(self.x-wallspeed, self.y, self.wid, self.hi)
+			self.leadbox = pygame.Rect(self.x+wallspeed, self.y, 
+				self.wid, self.hi)
+			self.trailbox = pygame.Rect(self.x-wallspeed, self.y, 
+				self.wid, self.hi)
 
 	def move(self):
 		if self.dir != 0:
@@ -417,7 +468,8 @@ class Mover(object):
 			maincollide = False
 			leadcollide = False
 			trailcollide = False
-			collides = s.hitbox.collidelistall([self.hitbox, self.leadbox, self.trailbox])
+			collides = s.hitbox.collidelistall([self.hitbox, self.leadbox, 
+				self.trailbox])
 			for c in collides:
 				if c == 0:
 					maincollide = True
@@ -425,12 +477,15 @@ class Mover(object):
 					leadcollide = True
 				elif c == 2:
 					trailcollide = True
-			# the 3 hitboxes overlap, so this checks for a specific overlap pattern that can only hit the switch
-			# on one frame. prevents double-hitting switches, most evident in levels where the ship can hit a green
-			# switch and a mover can hit a magenta switch
-			if maincollide and leadcollide and not trailcollide and self.dir == 1:
+			# the 3 hitboxes overlap, so this checks for a specific overlap 
+			# pattern that can only hit the switch on one frame. prevents 
+			# double-hitting switches, most evident in levels where the ship 
+			# can hit a green switch and a mover can hit a magenta switch
+			if (maincollide and leadcollide and not trailcollide and 
+				self.dir == 1):
 				flip = True
-			elif maincollide and trailcollide and not leadcollide and self.dir == -1:
+			elif (maincollide and trailcollide and not leadcollide and 
+				self.dir == -1):
 				flip = True
 			else:
 				flip = False
@@ -443,9 +498,9 @@ class Mover(object):
 
 		return [False, False]
 
-# these will accelerate the ship in one of 4 directions, depending on their orientation
-# this will either be the last feature I add, or I'll scrap it if it's not fun to play.
-# but I feel like it'll be fun
+# these will accelerate the ship in one of 4 directions, depending on their 
+# orientation this will either be the last feature I add, or I'll scrap it if 
+# it's not fun to play. but I feel like it'll be fun
 class Pusher(object):
 	def __init__(self, x, y, dir):
 		self.x = x
@@ -455,7 +510,8 @@ class Pusher(object):
 		
 	def draw(self, framecount):
 		frames = int(framecount/40)
-		arrow = pygame.transform.rotate(arrows[(self.dir+frames)%4], 90*self.dir)
+		arrow = pygame.transform.rotate(arrows[(self.dir+frames)%4], 
+			90*self.dir)
 		gameDisplay.blit(arrow, (self.x, self.y))
 
 def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
@@ -480,10 +536,14 @@ def drawShip(pos_x, pos_y, accel_x, accel_y, ship_size):
 	l_plume_y = -accel_y*ship_size/2
 	w_plume_y = ship_size/2
 	
-	pygame.draw.rect(gameDisplay, cyan, [pos_plume_x_x, pos_plume_x_y, l_plume_x, w_plume_x])
-	pygame.draw.rect(gameDisplay, cyan, [pos_plume_y_x, pos_plume_y_y, w_plume_y, l_plume_y])
-	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/4, pos_y-ship_size/2, ship_size/2, ship_size])
-	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2, pos_y-ship_size/4, ship_size, ship_size/2])
+	pygame.draw.rect(gameDisplay, cyan, [pos_plume_x_x, pos_plume_x_y,
+		l_plume_x, w_plume_x])
+	pygame.draw.rect(gameDisplay, cyan, [pos_plume_y_x, pos_plume_y_y,
+		w_plume_y, l_plume_y])
+	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/4, 
+		pos_y-ship_size/2, ship_size/2, ship_size])
+	pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2, 
+		pos_y-ship_size/4, ship_size, ship_size/2])
 	
 def drawSpawnShip(pos_x, pos_y, ship_size, framecount):
 	spawnmatrix = [[99,  6,  1, 99],
@@ -493,11 +553,15 @@ def drawSpawnShip(pos_x, pos_y, ship_size, framecount):
 				   
 	if framecount > 12:
 		plumescale = (18-framecount)*ship_size/2
-		pygame.draw.rect(gameDisplay, cyan, [pos_x-plumescale/2, pos_y-ship_size/4, plumescale, ship_size/2])
-		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/4, pos_y-plumescale/2, ship_size/2, plumescale])
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-plumescale/2, 
+			pos_y-ship_size/4, plumescale, ship_size/2])
+		pygame.draw.rect(gameDisplay, cyan, [pos_x-ship_size/4, 
+			pos_y-plumescale/2, ship_size/2, plumescale])
 	
 	for y in range(0, 4):
 		for x in range(0, 4):
 			if spawnmatrix[y][x] < framecount:
-				pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2+x*ship_size/4, pos_y-ship_size/2+y*ship_size/4, ship_size/4, ship_size/4])
+				pygame.draw.rect(gameDisplay, white, [pos_x-ship_size/2+
+					x*ship_size/4, pos_y-ship_size/2+y*ship_size/4, 
+					ship_size/4, ship_size/4])
 	
